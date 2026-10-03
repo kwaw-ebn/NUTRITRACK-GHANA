@@ -90,3 +90,32 @@ def test_owner_provisioning_and_revoked_regional_scope(client,monkeypatch):
     grant=next(g for g in grants if g['role']=='Regional Nutrition Officer')
     assert client.patch('/api/platform/assignments/grant/'+grant['id'],headers=oh,json={'active':False}).status_code==200
     assert client.get('/api/intelligence',headers=rh).status_code==403
+
+
+def test_comparable_national_totals_and_single_signal_action(client,monkeypatch):
+    import os
+    monkeypatch.setattr(settings(),'main_admin_email','owner@example.org')
+    response=client.post('/api/platform/setup',headers={'X-Setup-Token':os.environ['SETUP_TOKEN']},json={'name':'Test Owner','email':'owner@example.org','password':'StrongOwnerPassword123!'})
+    oh={'Authorization':'Bearer '+response.json()['access_token']}
+    standard=client.post('/api/platform/indicator-standards',headers=oh,json={'code':'TEST_COVERAGE','version':'test-v1','name':'Fictional comparable coverage','programme':'growth','definition':'Fictional test definition','numerator_definition':'Served','denominator_definition':'Eligible','target':90,'approval_reference':'TEST ONLY','source_url':'https://example.org/test-definition'})
+    assert standard.status_code==201,standard.text
+    scopes=[]
+    for name,email,n,d in [('District A','a@example.org',60,100),('District B','b@example.org',10,20)]:
+        h,s,_=setup(client,name,email)
+        indicator=client.post('/api/indicators',headers=h,json={'standard_id':standard.json()['id'],'name':'Local label ignored','programme':'growth','definition':'Local definition ignored','numerator_definition':'Served','denominator_definition':'Eligible','target':90,'approval_reference':'TEST ONLY'})
+        assert indicator.status_code==201,indicator.text
+        assert indicator.json()['definition']=='Fictional test definition'
+        report=client.post('/api/reports',headers=h,json={'facility_id':s['facilities'][0]['id'],'period':'2026-09','values':[{'indicator_id':indicator.json()['id'],'numerator':n,'denominator':d}]}).json()
+        for state in ['Submitted','Verified','Approved']:
+            assert client.post('/api/reports/'+report['id']+'/transition',headers=h,json={'state':state}).status_code==200
+        scopes.append((h,indicator.json()))
+    national=client.get('/api/intelligence',headers=oh,params={'period':'2026-09'})
+    assert national.status_code==200,national.text
+    trend=national.json()['trends'][0]
+    assert trend['numerator']==70 and trend['denominator']==120 and trend['value']==58.33
+    h,indicator=scopes[0]
+    actor=client.get('/api/auth/me',headers=h).json()['user']['id']
+    payload={'indicator_id':indicator['id'],'period':'2026-09','assigned_to':actor,'due_date':'2026-10-10','problem':'Fictional outreach response for testing'}
+    action=client.post('/api/signals/actions',headers=h,json=payload)
+    assert action.status_code==201,action.text
+    assert client.post('/api/signals/actions',headers=h,json=payload).status_code==409
