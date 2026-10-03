@@ -11,7 +11,9 @@ key = base64.urlsafe_b64encode(secrets.token_bytes(32)).decode()
 with psycopg.connect(url, autocommit=True) as db:
     db.execute("CREATE DATABASE nutritrack_recovery_ci")
 # The fixed test target exists only inside the ephemeral workflow container.
-target = url.replace("/nutritrack", "/nutritrack_recovery_ci", 1)
+from urllib.parse import urlsplit, urlunsplit
+parts = urlsplit(url)
+target = urlunsplit(parts._replace(path="/nutritrack_recovery_ci"))
 started = time.monotonic()
 with tempfile.TemporaryDirectory() as directory:
     path = str(Path(directory) / "backup.enc")
