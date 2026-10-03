@@ -1,15 +1,27 @@
 # Backup and recovery runbook
 
-Status: designed, not restore-tested in this workspace. The UI displays backup status as unverified; it does not assert protection.
+Live backups remain unverified. The PostgreSQL CI exercise restores an encrypted dump into a separate disposable database, checks migration/master data and rejects tampering. This tests the procedure with master data, not live backup protection.
 
-Proposed pilot objectives (must be agreed with the deployment owner): RPO ≤24 hours for a daily snapshot policy; RTO ≤8 hours after restore exercise and incident authorization. These are targets, not measured guarantees. Provider plan retention and point-in-time recovery vary; verify contracted capabilities.
+Proposed daily-policy objectives: RPO ≤24 hours; RTO ≤8 hours. These are targets, not guarantees. Assign a backup owner and alternate. Configure automated daily backups, restricted encrypted storage, failure alerts and approved retention (proposed 30 days). Verify provider-plan capabilities. Retain encryption keys separately from backup files.
 
-1. Assign a backup owner and authorized alternate. Configure automated managed database backups; agree on at least 30 days retention where lawful and affordable. Set alerts for failed backups and retention gaps. Include uploaded authorized evidence/object storage if that feature is added.
-2. Use provider encryption and encrypted export storage with restricted service identities and separate credentials. Avoid unencrypted local health-data exports. Keep recovery credentials outside the application repository. Store backup metadata without client identifiers.
-3. Before deployment, restore a backup into an isolated staging recovery database. Restrict network access. Do not connect ordinary development accounts or analytics tools to restored client data.
-4. Run Alembic status, database integrity checks, organization counts, report counts and audit-chain reconciliation against the backup inventory. Test sign-in, organization isolation, role restrictions and approved-report immutability. Validate a sample of authorized records with the designated data custodian.
-5. Record backup time, restore start/finish, actual data loss window, measured RPO/RTO, validation failures, approver and incident/change reference. Repeat quarterly and after material schema/provider changes.
-6. For incidents, pause writes and background processing, preserve incident logs, confirm the approved recovery point, restore, reconfigure backend DATABASE_URL securely, and perform acceptance checks before reopening access. Communicate the recovered data window and reconcile records entered after the recovery point.
-7. Retain incident evidence per policy; securely remove temporary restore databases after custodian approval. Never overwrite the sole available backup.
+## Encrypted backup
 
-Example operator command for encrypted backups: pipe `pg_dump --format=custom "$DATABASE_URL"` directly to the organization's approved encryption tool and restricted storage service. Do not log the connection string. The exact tool, key custody and destination must be approved and tested in the deployment environment.
+Install a PostgreSQL client at least as new as the server (hosted Neon: PostgreSQL 18). Supply DATABASE_URL and BACKUP_ENCRYPTION_KEY through a protected operator environment. The backup key is URL-safe base64 encoding of 32 random bytes. Never log keys or credentials.
+
+```sh
+python scripts/backup_database.py --output /restricted-storage/nutritrack-backup.enc
+```
+
+The script streams pg_dump into authenticated AES-GCM encryption, refuses overwrites and restricts file permissions. The scheduler/storage destination must be configured; application deployment does not silently enable it. Database-stored evidence and generated reports require the persistent EVIDENCE_ENCRYPTION_KEY after recovery.
+
+## Isolated recovery
+
+Create an empty restricted recovery database. Set RESTORE_DATABASE_URL to that recovery target and retain the original backup key. Never select the sole live database for a test.
+
+```sh
+python scripts/restore_database.py --input /restricted-storage/nutritrack-backup.enc --allow-restore
+```
+
+Authentication completes before pg_restore. Temporary plaintext is restricted and removed afterwards; the script does not erase an existing schema. Validate migration, organization/facility/report counts, audit inventory, sign-in, scope denial, report locks and evidence decryption. Record backup time, restore start/finish, actual loss window, measured RPO/RTO, failures and custodian approval. Repeat quarterly and after material changes.
+
+For incidents: pause writes and jobs, preserve logs, authorize a recovery point, restore separately, validate, securely change the API database URL and reopen after acceptance. Reconcile records entered after the restored point. Remove temporary recovery resources under the approved retention procedure.

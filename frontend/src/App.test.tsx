@@ -136,11 +136,18 @@ test("Main owner registers without a location and opens national oversight", asy
   expect(
     screen.getByRole("option", { name: "All Ghana — all regions" }),
   ).toBeInTheDocument();
-  expect(screen.getByText("Fictional UI Test Directorate")).toBeInTheDocument();
+  expect(
+    screen.getAllByText("Fictional UI Test Directorate").length,
+  ).toBeGreaterThan(0);
   await user.click(screen.getByRole("button", { name: "Open dashboard" }));
   await screen.findByRole("button", { name: "National administration" });
   await user.click(
     screen.getByRole("button", { name: "National administration" }),
   );
   await screen.findByRole("heading", { name: "National overview" });
+  await user.click(screen.getByRole("button", { name: "Manage organization" }));
+  await screen.findByRole("heading", { name: "Fictional UI Test Directorate" });
+  expect(screen.getByRole("button", { name: "Health structure" })).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Facilities" }));
+  expect(screen.getByLabelText("Facility name")).toBeInTheDocument();
 });

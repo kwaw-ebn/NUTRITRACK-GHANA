@@ -104,6 +104,7 @@ class Membership(Identity, Base):
     __table_args__ = (UniqueConstraint("user_id", "organization_id"),)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
     organization_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
     role: Mapped[str] = mapped_column(String(50))
     facility_id: Mapped[str | None] = mapped_column(ForeignKey("facilities.id"))
     subdistrict_id: Mapped[str | None] = mapped_column(ForeignKey("subdistricts.id"))
@@ -170,12 +171,18 @@ class Community(Identity, Tenant, Base):
 class Programme(Identity, Base):
     __tablename__ = "programmes"
     code: Mapped[str] = mapped_column(String(60), unique=True)
+    fields: Mapped[list] = mapped_column(JSON, default=list)
+    schema_version: Mapped[int] = mapped_column(Integer, default=1)
+    approval_reference: Mapped[str] = mapped_column(String(250), default="")
     name: Mapped[str] = mapped_column(String(120))
     active: Mapped[bool] = mapped_column(Boolean, default=True)
 
 
 class Indicator(Identity, Tenant, Base):
     __tablename__ = "indicators"
+    standard_id: Mapped[str | None] = mapped_column(
+        ForeignKey("standard_indicators.id"), index=True
+    )
     name: Mapped[str] = mapped_column(String(160))
     programme: Mapped[str] = mapped_column(String(60))
     definition: Mapped[str] = mapped_column(Text)
@@ -213,6 +220,8 @@ class Encounter(Identity, Tenant, Provenance, Base):
     programme: Mapped[str] = mapped_column(String(60))
     visit_date: Mapped[str] = mapped_column(String(10))
     measurements: Mapped[dict] = mapped_column(JSON, default=dict)
+    form_version: Mapped[int] = mapped_column(Integer, default=1)
+    form_snapshot: Mapped[list] = mapped_column(JSON, default=list)
     assessment: Mapped[str] = mapped_column(Text)
     followup_date: Mapped[str | None] = mapped_column(String(10))
     outcome: Mapped[str | None] = mapped_column(Text)
@@ -221,6 +230,8 @@ class Encounter(Identity, Tenant, Provenance, Base):
 
 class Action(Identity, Tenant, Provenance, Base):
     __tablename__ = "actions"
+    __table_args__ = (UniqueConstraint("organization_id", "signal_key"),)
+    signal_key: Mapped[str | None] = mapped_column(String(160))
     title: Mapped[str] = mapped_column(String(180))
     problem: Mapped[str] = mapped_column(Text)
     facility_id: Mapped[str | None] = mapped_column(ForeignKey("facilities.id"), index=True)
@@ -269,3 +280,51 @@ class MasterImport(Identity, Base):
     version: Mapped[str] = mapped_column(String(60), unique=True)
     imported_by: Mapped[str] = mapped_column(String(120))
     count: Mapped[int] = mapped_column(Integer)
+
+
+class StandardIndicator(Identity, Base):
+    __tablename__ = "standard_indicators"
+    __table_args__ = (UniqueConstraint("code", "version"),)
+    code: Mapped[str] = mapped_column(String(60))
+    version: Mapped[str] = mapped_column(String(40))
+    name: Mapped[str] = mapped_column(String(160))
+    programme: Mapped[str] = mapped_column(String(60))
+    definition: Mapped[str] = mapped_column(Text)
+    numerator_definition: Mapped[str] = mapped_column(Text)
+    denominator_definition: Mapped[str] = mapped_column(Text)
+    direction: Mapped[str] = mapped_column(String(10))
+    target: Mapped[float | None] = mapped_column(Float)
+    approval_reference: Mapped[str] = mapped_column(String(250))
+    source_url: Mapped[str] = mapped_column(String(500))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class Evidence(Identity, Tenant, Provenance, Base):
+    __tablename__ = "evidence"
+    record_id: Mapped[str] = mapped_column(ForeignKey("operational_records.id"), index=True)
+    filename: Mapped[str] = mapped_column(String(150))
+    content_type: Mapped[str] = mapped_column(String(60))
+    encrypted_content: Mapped[str] = mapped_column(Text)
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    sha256: Mapped[str] = mapped_column(String(64))
+
+
+class OfflineReceipt(Identity, Tenant, Base):
+    __tablename__ = "offline_receipts"
+    __table_args__ = (UniqueConstraint("organization_id", "user_id", "operation_id"),)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    operation_id: Mapped[str] = mapped_column(String(36))
+    payload_hash: Mapped[str] = mapped_column(String(64))
+    resource_id: Mapped[str] = mapped_column(ForeignKey("encounters.id"))
+
+
+class ReportJob(Identity, Tenant, Base):
+    __tablename__ = "report_jobs"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    report_id: Mapped[str] = mapped_column(ForeignKey("reports.id"))
+    facility_id: Mapped[str] = mapped_column(ForeignKey("facilities.id"))
+    format: Mapped[str] = mapped_column(String(10))
+    state: Mapped[str] = mapped_column(String(20), default="Queued")
+    lease_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    encrypted_output: Mapped[str | None] = mapped_column(Text)
+    error: Mapped[str | None] = mapped_column(String(500))

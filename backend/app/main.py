@@ -1,5 +1,6 @@
 import csv, io, json, secrets, smtplib, calendar
 from email.message import EmailMessage
+from types import SimpleNamespace
 from datetime import date, datetime, timedelta, timezone
 from fastapi import (
     FastAPI,
@@ -58,6 +59,13 @@ app.add_middleware(
 @app.middleware("http")
 async def safe_headers(request, call_next):
     response = await call_next(request)
+    if request.url.path.startswith("/api/sync/") and response.status_code >= 400:
+        from .db import SessionLocal
+
+        with SessionLocal() as log_db:
+            log_db.add(Audit(event="sync.failed", details={"status": response.status_code}))
+            log_db.commit()
+
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["Cache-Control"] = "no-store"
@@ -265,6 +273,14 @@ def me(user=Depends(current_user), db=Depends(get_db)):
     return {
         "user": serialize(user),
         "platform_admin": is_platform_admin(db, user.id),
+        "grants": [
+            serialize(g)
+            for g in db.scalars(
+                select(AccessGrant).where(
+                    AccessGrant.user_id == user.id, AccessGrant.active == True
+                )
+            )
+        ],
         "memberships": [
             dict(
                 id=m.id,
@@ -357,6 +373,17 @@ def setup(
         setup_token, settings().setup_token
     ):
         raise HTTPException(403, "An authorized onboarding token is required")
+    organization, user, _ = create_organization(data, db)
+    result = tokens(db, user)
+    db.commit()
+    return result
+
+
+def create_organization(data, db, actor_id=None, allow_existing=False):
+    if db.scalar(
+        select(Organization.id).where(func.lower(Organization.name) == data.name.strip().lower())
+    ):
+        raise HTTPException(409, "An organization with this name already exists")
     region = db.get(Region, data.region_id)
     if not region or not region.active:
         raise HTTPException(422, "Choose an active region")
@@ -378,7 +405,8 @@ def setup(
     codes = set(db.scalars(select(Programme.code).where(Programme.active == True)))
     if not set(data.programmes) <= codes:
         raise HTTPException(422, "Unknown programme")
-    if db.scalar(select(User).where(User.email == data.admin_email.lower())):
+    existing_user = db.scalar(select(User).where(User.email == data.admin_email.lower()))
+    if existing_user and not allow_existing:
         raise HTTPException(
             409,
             "Administrator email already exists. Ask an administrator to add membership.",
@@ -420,11 +448,13 @@ def setup(
             raise HTTPException(422, "Setup facility parent must match a sub-district name")
         values["subdistrict_id"] = subids[f.subdistrict_id]
         db.add(Facility(organization_id=organization.id, **values))
-    user = User(
+    user = existing_user or User(
         name=data.admin_name,
         email=data.admin_email.lower(),
-        password_hash=passwords.hash(data.password),
+        password_hash=passwords.hash(data.password or secrets.token_urlsafe(40)),
     )
+    if existing_user and not user.active:
+        raise HTTPException(422, "Administrator account is inactive")
     db.add(user)
     db.flush()
     member = Membership(
@@ -436,18 +466,16 @@ def setup(
     db.flush()
     audit(
         db,
-        member,
+        SimpleNamespace(organization_id=organization.id, user_id=actor_id) if actor_id else member,
         "organization.setup",
         organization.id,
         {"subdistricts": len(data.subdistricts), "facilities": len(data.facilities)},
     )
-    result = tokens(db, user)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(409, "Duplicate organization structure")
-    return result
+    for definition in data.indicators:
+        if definition.programme not in data.programmes:
+            raise HTTPException(422, "Setup indicator programme is not enabled")
+        db.add(Indicator(organization_id=organization.id, **indicator_values(definition, db)))
+    return organization, user, existing_user is None
 
 
 @app.get("/api/structure")
@@ -569,20 +597,13 @@ async def validate_import(file: UploadFile = File(), m=Depends(scope), db=Depend
     content = await file.read(2_000_001)
     if len(content) > 2_000_000:
         raise HTTPException(413, "Maximum upload is 2 MB")
+    from .onboarding import read_rows
     try:
-        if (file.filename or "").lower().endswith(".csv"):
-            rows = list(csv.DictReader(io.StringIO(content.decode("utf-8-sig"))))
-        elif (file.filename or "").lower().endswith(".xlsx"):
-            workbook = load_workbook(io.BytesIO(content), read_only=True, data_only=True)
-            sheet = workbook.active
-            if sheet.max_row and sheet.max_row > 1001:
-                raise ValueError("Maximum 1000 rows")
-            values = list(sheet.values)
-            rows = [dict(zip(values[0], r)) for r in values[1:]]
-        else:
-            raise ValueError("Use CSV or XLSX")
-    except Exception as e:
-        raise HTTPException(422, f"Cannot read import: {str(e)[:100]}")
+        rows = read_rows(content, file.filename or "")
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(422, "Cannot read import: use a valid CSV or XLSX workbook")
     if not rows or len(rows) > 1000:
         raise HTTPException(422, "Provide 1–1000 rows")
     subids = {s.name: s.id for s in db.scalars(scoped_query(Subdistrict, m))}
@@ -792,6 +813,7 @@ def encounters(client_id: str | None = None, m=Depends(scope), db=Depends(get_db
         owned(db, Client, client_id, m)
         query = query.where(Encounter.client_id == client_id)
     programme_roles = {
+        "School Health/GIFTS Officer": ["gifts"],
         "Midwife/ANC Staff": ["maternal"],
         "Community Health Nurse": ["growth", "iycf", "vitamin-a"],
         "Field/CHPS Worker": ["growth", "iycf", "vitamin-a"],
@@ -812,17 +834,52 @@ def encounters(client_id: str | None = None, m=Depends(scope), db=Depends(get_db
 
 @app.post("/api/encounters", status_code=201)
 def add_encounter(data: EncounterIn, m=Depends(scope), db=Depends(get_db)):
+    return save(db, create_encounter(data, m, db))
+
+
+def create_encounter(data, m, db):
     require(m, CLINICAL)
     client = owned(db, Client, data.client_id, m)
     enabled(db, m, data.programme)
+    programme = db.scalar(
+        select(Programme).where(Programme.code == data.programme, Programme.active == True)
+    )
+    if not programme:
+        raise HTTPException(422, "This programme is inactive")
     allowed = {
         "Midwife/ANC Staff": {"maternal"},
         "Community Health Nurse": {"growth", "iycf", "vitamin-a"},
         "Field/CHPS Worker": {"growth", "iycf", "vitamin-a"},
+        "School Health/GIFTS Officer": {"gifts"},
     }
     if m.role in allowed and data.programme not in allowed[m.role]:
         raise HTTPException(403, "Programme outside your clinical role")
-    row = Encounter(**provenance(m), facility_id=client.facility_id, **data.model_dump(mode="json"))
+    from .forms import validate_capture
+
+    validate_capture(programme, data.measurements)
+    if data.measurements.get("school_id"):
+        school = owned(db, OperationalRecord, data.measurements["school_id"], m)
+        if school.kind != "schools" or school.facility_id != client.facility_id:
+            raise HTTPException(422, "School must belong to the client's facility")
+    if db.scalar(
+        select(Report.id).where(
+            Report.organization_id == m.organization_id,
+            Report.facility_id == client.facility_id,
+            Report.period == str(data.visit_date)[:7],
+            Report.state.in_(["Approved", "Locked"]),
+        )
+    ):
+        raise HTTPException(
+            409,
+            "This facility reporting period is approved or locked; request an authorized amendment before adding records",
+        )
+    row = Encounter(
+        **provenance(m),
+        facility_id=client.facility_id,
+        form_version=programme.schema_version,
+        form_snapshot=programme.fields,
+        **data.model_dump(mode="json"),
+    )
     db.add(row)
     db.flush()
     if data.followup_date or data.risk in {"High", "Immediate"}:
@@ -843,7 +900,7 @@ def add_encounter(data: EncounterIn, m=Depends(scope), db=Depends(get_db)):
             )
         )
     audit(db, m, "encounter.created", row.id)
-    return save(db, row)
+    return row
 
 
 @app.get("/api/actions")
@@ -869,6 +926,10 @@ def actions(m=Depends(scope), db=Depends(get_db)):
 
 @app.post("/api/actions", status_code=201)
 def add_action(data: ActionIn, m=Depends(scope), db=Depends(get_db)):
+    return save(db, create_action(data, m, db))
+
+
+def create_action(data, m, db):
     require(m, set(ROLES) - AGGREGATE)
     if data.facility_id:
         facility(db, data.facility_id, m)
@@ -886,6 +947,7 @@ def add_action(data: ActionIn, m=Depends(scope), db=Depends(get_db)):
             select(Membership).where(
                 Membership.user_id == data.assigned_to,
                 Membership.organization_id == m.organization_id,
+                Membership.active == True,
             )
         )
         if not membership or membership.role in AGGREGATE:
@@ -898,7 +960,7 @@ def add_action(data: ActionIn, m=Depends(scope), db=Depends(get_db)):
     db.add(row)
     db.flush()
     audit(db, m, "action.created", row.id)
-    return save(db, row)
+    return row
 
 
 @app.patch("/api/actions/{id}")
@@ -927,11 +989,29 @@ def indicators(m=Depends(scope), db=Depends(get_db)):
 def add_indicator(data: IndicatorIn, m=Depends(scope), db=Depends(get_db)):
     require(m, ADMIN)
     enabled(db, m, data.programme)
-    row = Indicator(organization_id=m.organization_id, **data.model_dump())
+    values = indicator_values(data, db)
+    row = Indicator(organization_id=m.organization_id, **values)
     db.add(row)
     db.flush()
     audit(db, m, "indicator.created", row.id)
     return save(db, row)
+
+
+def indicator_values(data, db):
+    values = data.model_dump()
+    if data.standard_id:
+        standard = db.get(StandardIndicator, data.standard_id)
+        if not standard or not standard.active or standard.programme != data.programme:
+            raise HTTPException(422, "Choose an active standard for the enabled programme")
+        for key in [
+            "name",
+            "definition",
+            "numerator_definition",
+            "denominator_definition",
+            "direction",
+        ]:
+            values[key] = getattr(standard, key)
+    return values
 
 
 @app.get("/api/reports")
@@ -988,7 +1068,13 @@ TRANSITIONS = {
 def transition(id: str, data: Transition, m=Depends(scope), db=Depends(get_db)):
     require(m, MANAGERS | CLINICAL | {"School Health/GIFTS Officer"})
     row = owned(db, Report, id, m, lock=True)
-    if data.state not in TRANSITIONS[row.state]:
+    workflow = db.get(Organization, m.organization_id).configuration.get(
+        "approval_workflow", ["Draft", "Submitted", "Verified", "Approved", "Locked"]
+    )
+    permitted = set(TRANSITIONS[row.state])
+    if row.state == "Submitted" and "Verified" not in workflow:
+        permitted = {"Returned", "Approved"}
+    if data.state not in permitted:
         raise HTTPException(409, "Invalid reporting workflow transition")
     if data.state in {"Verified", "Returned"}:
         require(m, MANAGERS)
@@ -1044,7 +1130,11 @@ KINDS = {"supervision", "interventions", "schools", "commodities"}
 def validate_record(kind, data):
     d = data.details
     if kind == "supervision":
-        if not data.facility_id or not d.get("date") or not d.get("findings"):
+        if (
+            not data.facility_id
+            or not d.get("date")
+            or (d.get("status", "Completed") == "Completed" and not d.get("findings"))
+        ):
             raise HTTPException(422, "Facility, date and findings are required")
         date.fromisoformat(d["date"])
     if kind == "interventions":
@@ -1107,6 +1197,19 @@ def add_register(kind: str, data: RecordIn, m=Depends(scope), db=Depends(get_db)
         raise HTTPException(403, "Select your assigned facility")
     if kind == "schools":
         enabled(db, m, "gifts")
+    if data.details.get("indicator_id"):
+        owned(db, Indicator, data.details["indicator_id"], m)
+    if data.details.get("community_id"):
+        community = owned(db, Community, data.details["community_id"], m)
+        if data.facility_id and community.facility_id != data.facility_id:
+            raise HTTPException(422, "Community and facility must match")
+    if data.details.get("cost") and m.role not in {
+        "District Nutrition Officer",
+        "Facility In-Charge",
+    }:
+        raise HTTPException(
+            403, "Cost entry requires district or facility management authorization"
+        )
     try:
         validate_record(kind, data)
     except (ValueError, TypeError):
@@ -1115,7 +1218,11 @@ def add_register(kind: str, data: RecordIn, m=Depends(scope), db=Depends(get_db)
     db.add(row)
     db.flush()
     audit(db, m, f"{kind}.created", row.id)
-    if kind == "supervision" and data.details.get("corrective_action"):
+    if (
+        kind == "supervision"
+        and data.details.get("corrective_action")
+        and data.details.get("status", "Completed") == "Completed"
+    ):
         db.add(
             Action(
                 **provenance(m),
@@ -1125,6 +1232,7 @@ def add_register(kind: str, data: RecordIn, m=Depends(scope), db=Depends(get_db)
                 due_date=str(data.details.get("followup_date") or date.today()),
                 assigned_to=m.user_id,
                 source=f"Supervision {row.id}",
+                signal_key=f"supervision:{row.id}",
             )
         )
     return save(db, row)
@@ -1232,23 +1340,55 @@ def dashboard(m=Depends(scope), db=Depends(get_db)):
                 None,
             )
             timely = 100 if submitted and submitted.created_at.date() <= deadline else 0
+        references = [
+            c.reference.strip().casefold()
+            for c in db.scalars(
+                select(Client).where(
+                    Client.organization_id == m.organization_id,
+                    Client.facility_id == f.id,
+                    Client.active == True,
+                )
+            )
+        ]
+        duplicate_rate = (
+            round(100 * (len(references) - len(set(references))) / len(references), 1)
+            if references
+            else None
+        )
+        configured_programmes = set(f.programmes or org(db, m).configuration.get("programmes", []))
+        consistent = (
+            100
+            if recent
+            and all(
+                next((i.programme for i in indicators if i.id == v["indicator_id"]), None)
+                in configured_programmes
+                for v in recent.values
+            )
+            else 0
+        )
         components = {
             "Completeness": completeness,
             "Timeliness": timely,
             "Validity": validity,
+            "Consistency": consistent,
+            "Duplicate rate": duplicate_rate,
         }
         weights = org(db, m).configuration.get(
             "quality_weights", {"Completeness": 1, "Timeliness": 1, "Validity": 1}
         )
+        measured_weights = {k: w for k, w in weights.items() if components.get(k) is not None}
         score = (
             round(
-                sum(components[k] * weights[k] for k in components) / sum(weights.values()),
+                sum(
+                    (100 - components[k] if k == "Duplicate rate" else components[k]) * w
+                    for k, w in measured_weights.items()
+                )
+                / sum(measured_weights.values()),
                 1,
             )
-            if recent
+            if recent and sum(measured_weights.values())
             else None
         )
-        # Consistency/duplicates are intentionally not fabricated until linked-source checks exist.
         facility_profiles.append(
             {
                 "facility_id": f.id,
@@ -1258,7 +1398,7 @@ def dashboard(m=Depends(scope), db=Depends(get_db)):
                 "data_quality": score,
                 "components": components,
                 "weights": weights,
-                "unmeasured": ["Consistency", "Duplicate rate"],
+                "unmeasured": ["Duplicate rate"] if duplicate_rate is None else [],
                 "open_actions": sum(
                     a.facility_id == f.id and a.status in {"Open", "In progress"}
                     for a in operational
@@ -1284,7 +1424,7 @@ def dashboard(m=Depends(scope), db=Depends(get_db)):
         "signals": signals,
         "facility_profiles": facility_profiles,
         "actions": ([serialize(a) for a in operational] if m.role not in AGGREGATE else []),
-        "methodology": "Indicators use approved/locked reports only; pooled numerators and denominators. No denominator means no estimate. Quality score uses configured weights across completeness, timeliness and validity only; consistency and duplicate checks are unmeasured. No causal attribution.",
+        "methodology": "Indicators use approved/locked reports only; pooled numerators and denominators. No denominator means no estimate. Quality components measure completeness, timeliness, validity, enabled-programme consistency, and repeated normalized client references within a facility. Duplicate rate is lower-is-better; quality scoring uses 100 minus duplicate rate. Unmeasured components are excluded and shown explicitly. No causal attribution.",
     }
 
 
@@ -1330,15 +1470,43 @@ def admin_health(m=Depends(scope), db=Depends(get_db)):
         ),
         "last_successful_backup": None,
         "backup_status": "Provider-managed backups must be configured and restore-tested",
-        "background_jobs": "Not configured",
-        "report_queue": "Synchronous reporting",
-        "synchronization": "Offline clinical synchronization is not enabled",
+        "failed_background_jobs": db.scalar(
+            select(func.count(ReportJob.id)).where(ReportJob.state == "Failed")
+        ),
+        "report_queue_pending": db.scalar(
+            select(func.count(ReportJob.id)).where(ReportJob.state.in_(["Queued", "Running"]))
+        ),
+        "completed_report_jobs": db.scalar(
+            select(func.count(ReportJob.id)).where(ReportJob.state == "Completed")
+        ),
+        "synchronization": "Encrypted deferred encounter capture with server permission checks and idempotent replay",
+        "sync_errors_24h": db.scalar(
+            select(func.count(Audit.id)).where(
+                Audit.event == "sync.failed", Audit.created_at > utc() - timedelta(days=1)
+            )
+        ),
+        "secure_evidence_storage": (
+            "Configured" if settings().evidence_encryption_key else "Not configured"
+        ),
     }
 
 
 @app.get("/api/changelog")
 def changelog():
     return [
+        {
+            "version": "0.2.0",
+            "date": "2026-10-03",
+            "features": [
+                "Owner organization administration and staff invitations",
+                "National/regional overview and versioned indicator comparisons",
+                "Configurable programme templates and encrypted deferred capture",
+                "Supervision scheduling, encrypted evidence and report outputs",
+                "Durable report generation jobs and auditable role revocation",
+            ],
+            "migration": "0004",
+            "status": "Staging; operational acceptance and live backup verification are required",
+        },
         {
             "version": "0.1.0",
             "date": "2026-10-03",
@@ -1350,7 +1518,7 @@ def changelog():
             ],
             "migration": "0001",
             "status": "Pilot foundation; see requirements matrix for production gates",
-        }
+        },
     ]
 
 
@@ -1472,6 +1640,20 @@ def is_platform_admin(db, user_id):
     )
 
 
+def national_admin(user=Depends(current_user), db=Depends(get_db)):
+    if not is_platform_admin(db, user.id) and not db.scalar(
+        select(AccessGrant.id).where(
+            AccessGrant.user_id == user.id,
+            AccessGrant.level == "NATIONAL",
+            AccessGrant.role == "National Nutrition Administrator",
+            AccessGrant.region_id == None,
+            AccessGrant.active == True,
+        )
+    ):
+        raise HTTPException(403, "Authorized national master-data administrator required")
+    return user
+
+
 def platform_user(user=Depends(current_user), db=Depends(get_db)):
     if not is_platform_admin(db, user.id):
         raise HTTPException(403, "Main administrator access is required")
@@ -1569,3 +1751,63 @@ def platform_dashboard(user=Depends(platform_user), db=Depends(get_db)):
         scope="National platform oversight",
         clinical_access=False,
     )
+
+
+from .platform import install as install_platform
+
+install_platform(app)
+
+from .intelligence import install as install_intelligence
+
+install_intelligence(app)
+
+from .operations import install as install_operations
+
+install_operations(app)
+
+from .onboarding import install as install_onboarding
+
+install_onboarding(app)
+
+
+@app.post("/api/sync/encounters", status_code=201)
+def sync_encounter(
+    data: OfflineEncounterIn, request: Request, m=Depends(scope), db=Depends(get_db)
+):
+    require(m, CLINICAL)
+    limit(request, "offline-sync", 30)
+    value = data.encounter.model_dump(mode="json")
+    fingerprint = digest(json.dumps(value, sort_keys=True, separators=(",", ":")))
+    receipt = db.scalar(
+        select(OfflineReceipt).where(
+            OfflineReceipt.organization_id == m.organization_id,
+            OfflineReceipt.user_id == m.user_id,
+            OfflineReceipt.operation_id == data.operation_id,
+        )
+    )
+    if receipt:
+        if receipt.payload_hash != fingerprint:
+            raise HTTPException(
+                409, "This operation identifier was already used for different data"
+            )
+        return {"record": serialize(owned(db, Encounter, receipt.resource_id, m)), "replayed": True}
+    row = create_encounter(data.encounter, m, db)
+    row.source_type = "Offline Sync"
+    row.source = "User-approved encrypted deferred capture"
+    db.add(
+        OfflineReceipt(
+            organization_id=m.organization_id,
+            user_id=m.user_id,
+            operation_id=data.operation_id,
+            payload_hash=fingerprint,
+            resource_id=row.id,
+        )
+    )
+    audit(db, m, "offline.encounter_synced", row.id, {"operation_id": data.operation_id})
+    db.commit()
+    return {"record": serialize(row), "replayed": False}
+
+
+from .jobs import install as install_jobs
+
+install_jobs(app)

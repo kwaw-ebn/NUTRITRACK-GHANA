@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Activity,
   ArrowRight,
@@ -64,6 +64,12 @@ import {
   type Row,
 } from "./components";
 import Setup from "./Setup";
+import OfflineCapture, { type OfflineHandle } from "./OfflineCapture";
+import ScopeOverview from "./ScopeOverview";
+import IndicatorEditor from "./IndicatorEditor";
+import Supervision from "./Supervision";
+import Intelligence from "./Intelligence";
+import ProgrammeEncounter from "./ProgrammeEncounter";
 import PlatformAdmin, { MainAdminSetup } from "./PlatformAdmin";
 const programmeLabels: Record<string, string> = {
   growth: "Child Growth Monitoring",
@@ -75,6 +81,7 @@ const programmeLabels: Record<string, string> = {
   ncd: "NCD Nutrition",
 };
 const clinicalRoles = [
+  "School Health/GIFTS Officer",
   "District Nutrition Officer",
   "Nutritionist/Dietitian",
   "Midwife/ANC Staff",
@@ -254,6 +261,7 @@ function Auth({
 }
 
 export default function App() {
+  const offlineCapture = useRef<OfflineHandle>(null);
   const [config, setConfig] = useState<Row>({ environment: "development" }),
     [me, setMe] = useState<Row | null>(null),
     [setup, setSetup] = useState(false),
@@ -274,6 +282,7 @@ export default function App() {
     [aggregate, setAggregate] = useState<Row | null>(null),
     [modal, setModal] = useState(""),
     [selected, setSelected] = useState<Row | null>(null),
+    [reportJob, setReportJob] = useState<Row | null>(null),
     [loading, setLoading] = useState(false),
     [error, setError] = useState(""),
     [notice, setNotice] = useState(""),
@@ -320,7 +329,10 @@ export default function App() {
   };
   useEffect(() => {
     api<Row[]>("/api/programmes")
-      .then(setRegistry)
+      .then((r) => {
+        setRegistry(r);
+        r.forEach((p) => (programmeLabels[p.code] = p.name));
+      })
       .catch(() => {});
     api("/api/public/config")
       .then(setConfig)
@@ -344,11 +356,14 @@ export default function App() {
         setRecords([await api("/api/admin/health")]);
         return;
       }
-      const [s, d, i] = await Promise.all([
+      const [s, d, i, programmeRegistry] = await Promise.all([
         api<Row>("/api/structure"),
         api<Row>("/api/dashboard"),
         api<Row[]>("/api/indicators"),
+        api<Row[]>("/api/programmes"),
       ]);
+      setRegistry(programmeRegistry);
+      programmeRegistry.forEach((p) => (programmeLabels[p.code] = p.name));
       setStructure(s);
       setDash(d);
       setIndicators(i);
@@ -480,6 +495,47 @@ export default function App() {
         }}
       />
     );
+  const higherScope = me.grants?.some((g: Row) =>
+    ["NATIONAL", "REGION"].includes(g.level),
+  );
+  if (!me.platform_admin && higherScope && !organizationView)
+    return (
+      <ScopeOverview
+        me={me}
+        environment={config.environment}
+        onSignOut={async () => {
+          await signOut();
+          setMe(null);
+        }}
+        onOpenOrganization={(id) => {
+          setOrganization(id);
+          setOrgId(id);
+          setPage("Overview");
+          setOrganizationView(true);
+        }}
+      />
+    );
+  if (!orgId)
+    return (
+      <div className="setup-page">
+        <main>
+          <Brand />
+          <h1>No active organization assignment</h1>
+          <p>
+            Your account has no current organization access. Ask your
+            administrator to assign your duties and location.
+          </p>
+          <button
+            onClick={async () => {
+              await signOut();
+              setMe(null);
+            }}
+          >
+            Sign out
+          </button>
+        </main>
+      </div>
+    );
   const nav = [
     {
       label: "WORKSPACE",
@@ -556,6 +612,7 @@ export default function App() {
   };
   const canAdd =
     !isAggregate &&
+    page !== "Supportive supervision" &&
     (isAdmin || !["Facilities", "Indicators", "Users"].includes(page)) &&
     (!!addLabels[page] || clinicalPage);
   return (
@@ -588,6 +645,14 @@ export default function App() {
             onClick={() => setOrganizationView(false)}
           >
             National administration
+          </button>
+        )}
+        {!me.platform_admin && higherScope && (
+          <button
+            className="secondary"
+            onClick={() => setOrganizationView(false)}
+          >
+            Regional / national overview
           </button>
         )}
         <div className="workspace-switch">
@@ -1415,6 +1480,18 @@ export default function App() {
               </section>
             </>
           )}
+          {isClinical && (
+            <OfflineCapture
+              key={`${me.user.id}:${orgId}`}
+              ref={offlineCapture}
+              userId={me.user.id}
+              organizationId={orgId}
+              onSynced={load}
+            />
+          )}
+          {page === "Overview" && !isSystem && (
+            <Intelligence organizationId={orgId} canAct={isAdmin} />
+          )}
           {page === "Monthly reports" && (
             <section className="panel">
               <div className="panel-heading">
@@ -1498,12 +1575,16 @@ export default function App() {
               )}
             </section>
           )}
-          {[
-            "Supportive supervision",
-            "Interventions",
-            "Schools",
-            "Commodity visibility",
-          ].includes(page) && (
+          {page === "Supportive supervision" && (
+            <Supervision
+              facilities={structure.facilities}
+              checklist={org.configuration.supervision_checklist || []}
+              canManage={isAdmin}
+            />
+          )}
+          {["Interventions", "Schools", "Commodity visibility"].includes(
+            page,
+          ) && (
             <section className="panel">
               <div className="panel-heading">
                 <div>
@@ -1713,6 +1794,13 @@ export default function App() {
                         Validity: Number(w_validity),
                       },
                       report_deadline_day: Number(d.report_deadline_day),
+                      deterioration_threshold_pp: Number(
+                        d.deterioration_threshold_pp,
+                      ),
+                      supervision_checklist: d.supervision_checklist
+                        .split("\n")
+                        .map((v: string) => v.trim())
+                        .filter(Boolean),
                       facility_types: String(d.facility_types)
                         .split(",")
                         .map((s) => s.trim())
@@ -1725,6 +1813,27 @@ export default function App() {
                 }}
               >
                 <div className="form-grid">
+                  <Field label="Deterioration signal threshold (percentage points)">
+                    <input
+                      name="deterioration_threshold_pp"
+                      type="number"
+                      min="0.1"
+                      max="100"
+                      step="0.1"
+                      defaultValue={
+                        org.configuration.deterioration_threshold_pp || 5
+                      }
+                    />
+                  </Field>
+                  <Field label="Supervision checklist (one question per line)">
+                    <textarea
+                      name="supervision_checklist"
+                      rows={5}
+                      defaultValue={(
+                        org.configuration.supervision_checklist || []
+                      ).join("\n")}
+                    />
+                  </Field>
                   <Field label="Report header">
                     <input
                       name="report_header"
@@ -2011,98 +2120,26 @@ export default function App() {
             </Form>
           )}
           {modal === "Encounters" && (
-            <Form
-              onSubmit={async (d) => {
-                const measurements: Row = {};
-                for (const key of [
-                  "weight_kg",
-                  "height_cm",
-                  "muac_cm",
-                  "haemoglobin_g_dl",
-                  "systolic_mmhg",
-                  "diastolic_mmhg",
-                ]) {
-                  if (d[key]) measurements[key] = Number(d[key]);
-                  delete d[key];
-                }
-                await save("/api/encounters", {
-                  ...d,
-                  measurements,
-                  followup_date: d.followup_date || null,
-                });
+            <ProgrammeEncounter
+              registry={registry}
+              enabled={enabled}
+              clients={clients}
+              initial={programme}
+              role={role}
+              onSave={async (d) => {
+                if (!navigator.onLine) {
+                  if (!offlineCapture.current)
+                    throw Error(
+                      "Encrypted capture is unavailable on this page.",
+                    );
+                  await offlineCapture.current.queue(d);
+                  setModal("");
+                  notify(
+                    "Entry encrypted on this device. Sync it after reconnecting.",
+                  );
+                } else await save("/api/encounters", d);
               }}
-            >
-              <div className="form-grid">
-                <Field label="Client">
-                  <Select name="client_id" options={clients} />
-                </Field>
-                <Field label="Programme">
-                  <select
-                    name="programme"
-                    defaultValue={programme || enabled[0]}
-                  >
-                    {enabled
-                      .filter((k: string) =>
-                        role === "Midwife/ANC Staff"
-                          ? k === "maternal"
-                          : role === "Community Health Nurse" ||
-                              role === "Field/CHPS Worker"
-                            ? ["growth", "iycf", "vitamin-a"].includes(k)
-                            : true,
-                      )
-                      .map((k: string) => (
-                        <option value={k} key={k}>
-                          {programmeLabels[k] || k}
-                        </option>
-                      ))}
-                  </select>
-                </Field>
-                <Field label="Visit date">
-                  <input
-                    name="visit_date"
-                    type="date"
-                    defaultValue={dateToday()}
-                    max={dateToday()}
-                    required
-                  />
-                </Field>
-                {[
-                  ["weight_kg", "Weight (kg)"],
-                  ["height_cm", "Height / length (cm)"],
-                  ["muac_cm", "MUAC (cm)"],
-                  ["haemoglobin_g_dl", "Haemoglobin (g/dL)"],
-                  ["systolic_mmhg", "Systolic BP (mmHg)"],
-                  ["diastolic_mmhg", "Diastolic BP (mmHg)"],
-                ].map(([k, l]) => (
-                  <Field label={l} key={k}>
-                    <input name={k} type="number" step="0.1" />
-                  </Field>
-                ))}
-                <Field label="Staff-assessed priority">
-                  <select name="risk">
-                    {["Routine", "Needs assessment", "High", "Immediate"].map(
-                      (v) => (
-                        <option key={v}>{v}</option>
-                      ),
-                    )}
-                  </select>
-                </Field>
-                <Field label="Follow-up date">
-                  <input name="followup_date" type="date" min={dateToday()} />
-                </Field>
-              </div>
-              <Field label="Nutrition assessment and services provided">
-                <textarea name="assessment" required rows={3} />
-              </Field>
-              <Field label="Outcome / advice">
-                <textarea name="outcome" rows={2} />
-              </Field>
-              <p className="muted">
-                Measurements are recorded without automated diagnosis or
-                unvalidated growth classification. High priority and scheduled
-                follow-up create an action.
-              </p>
-            </Form>
+            />
           )}
           {modal === "Action centre" && (
             <Form
@@ -2212,58 +2249,10 @@ export default function App() {
             </>
           )}
           {modal === "Indicators" && (
-            <Form
-              onSubmit={(d) =>
-                save("/api/indicators", { ...d, target: Number(d.target) })
-              }
-            >
-              <Field label="Indicator name">
-                <input name="name" required />
-              </Field>
-              <Field label="Programme">
-                <select name="programme">
-                  {enabled.map((k: string) => (
-                    <option value={k} key={k}>
-                      {programmeLabels[k] || k}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-              <Field label="Operational definition">
-                <textarea name="definition" required />
-              </Field>
-              <Field label="Numerator definition">
-                <textarea name="numerator_definition" required />
-              </Field>
-              <Field label="Denominator definition">
-                <textarea name="denominator_definition" required />
-              </Field>
-              <div className="form-grid">
-                <Field label="Approved target (%)">
-                  <input
-                    name="target"
-                    type="number"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    required
-                  />
-                </Field>
-                <Field label="Desired direction">
-                  <select name="direction">
-                    <option value="higher">Higher is better</option>
-                    <option value="lower">Lower is better</option>
-                  </select>
-                </Field>
-              </div>
-              <Field label="Approval reference">
-                <input
-                  name="approval_reference"
-                  placeholder="Approved plan, guideline or authorizing officer"
-                  required
-                />
-              </Field>
-            </Form>
+            <IndicatorEditor
+              enabled={enabled}
+              onSave={(d) => save("/api/indicators", d)}
+            />
           )}
           {(modal === "Monthly reports" || modal === "Edit report") && (
             <Form
@@ -2362,6 +2351,76 @@ export default function App() {
                   { key: "denominator", label: "Denominator" },
                 ]}
               />
+              <div className="admin-tabs">
+                <button
+                  className="secondary"
+                  onClick={async () => {
+                    try {
+                      setReportJob(
+                        await post(`/api/reports/${selected.id}/jobs`, {
+                          format: "pdf",
+                        }),
+                      );
+                    } catch (e) {
+                      notify((e as Error).message);
+                    }
+                  }}
+                >
+                  Queue PDF report
+                </button>
+                {reportJob && (
+                  <>
+                    <span>Job: {reportJob.state}</span>
+                    <button
+                      className="secondary"
+                      onClick={async () => {
+                        setReportJob(
+                          await api(`/api/report-jobs/${reportJob.id}`),
+                        );
+                      }}
+                    >
+                      Check job status
+                    </button>
+                    {reportJob.state === "Completed" && (
+                      <button
+                        className="secondary"
+                        onClick={() =>
+                          download(
+                            `/api/report-jobs/${reportJob.id}/download`,
+                            `nutrition-report-${selected.period}.pdf`,
+                          )
+                        }
+                      >
+                        Download generated report
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
+              <div className="admin-tabs">
+                <button
+                  className="secondary"
+                  onClick={() =>
+                    download(
+                      `/api/reports/${selected.id}/export/pdf`,
+                      `nutrition-report-${selected.period}.pdf`,
+                    ).catch((e) => notify(e.message))
+                  }
+                >
+                  Download PDF
+                </button>
+                <button
+                  className="secondary"
+                  onClick={() =>
+                    download(
+                      `/api/reports/${selected.id}/export/xlsx`,
+                      `nutrition-report-${selected.period}.xlsx`,
+                    ).catch((e) => notify(e.message))
+                  }
+                >
+                  Download Excel
+                </button>
+              </div>
               {!isAggregate &&
                 ["Draft", "Returned"].includes(selected.state) && (
                   <button
@@ -2478,6 +2537,20 @@ export default function App() {
                       type="date"
                       required
                       defaultValue={dateToday()}
+                    />
+                  </Field>
+                  <Field label="Linked indicator">
+                    <Select
+                      name="indicator_id"
+                      options={indicators}
+                      required={false}
+                    />
+                  </Field>
+                  <Field label="Linked community">
+                    <Select
+                      name="community_id"
+                      options={structure.communities}
+                      required={false}
                     />
                   </Field>
                   <Field label="Problem being addressed">
@@ -2749,9 +2822,10 @@ export default function App() {
                       </div>
                     </div>
                     <p className="muted">
-                      Consistency and duplicate rate are not yet measured.
-                      Quality score uses the organization's configured weights
-                      for the three shown components.
+                      Consistency checks enabled programme definitions.
+                      Duplicate rate measures repeated normalized client
+                      references within this facility; lower is better. Missing
+                      components are excluded from the weighted score.
                     </p>
                     <FacilityPerformance
                       id={selected.id || selected.facility_id}

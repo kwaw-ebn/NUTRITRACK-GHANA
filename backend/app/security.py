@@ -28,6 +28,7 @@ ROLES = [
 ]
 ADMIN = {"District Nutrition Officer"}
 CLINICAL = {
+    "School Health/GIFTS Officer",
     "District Nutrition Officer",
     "Nutritionist/Dietitian",
     "Midwife/ANC Staff",
@@ -128,7 +129,11 @@ def scope(
 
 def authorized_memberships(db, user_id, aggregate_only=False):
     """Resolve explicit assignments; rank never grants clinical access."""
-    members = list(db.scalars(select(Membership).where(Membership.user_id == user_id)))
+    members = list(
+        db.scalars(
+            select(Membership).where(Membership.user_id == user_id, Membership.active == True)
+        )
+    )
     if aggregate_only:
         members = [
             m

@@ -9,7 +9,8 @@ import {
   Building2,
 } from "lucide-react";
 import { api, setTokens } from "./api";
-import { Brand, Field, Combobox, type Row } from "./components";
+import IndicatorEditor from "./IndicatorEditor";
+import { Brand, Field, Combobox, Table, type Row } from "./components";
 const steps = [
   "Organization",
   "Location",
@@ -23,15 +24,18 @@ const steps = [
 export default function Setup({
   onComplete,
   onBack,
+  platform = false,
 }: {
-  onComplete: () => void;
+  onComplete: (result?: Row) => void;
+  platform?: boolean;
   onBack: () => void;
 }) {
   const [step, setStep] = useState(0),
     [regions, setRegions] = useState<Row[]>([]),
     [programmes, setProgrammes] = useState<Row[]>([]),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [importPreview, setImportPreview] = useState<Row | null>(null);
   const [data, setData] = useState<Row>({
     name: "",
     organization_type: "District Health Directorate",
@@ -44,6 +48,7 @@ export default function Setup({
     password: "",
     programmes: [],
     contact: "",
+    indicators: [],
   });
   const [token, setToken] = useState("");
   const update = (key: string, value: any) =>
@@ -80,7 +85,9 @@ export default function Setup({
       return setError("Complete each facility or remove it.");
     if (
       step === 4 &&
-      (!data.admin_name || !data.admin_email || data.password.length < 12)
+      (!data.admin_name ||
+        !data.admin_email ||
+        (!platform && data.password.length < 12))
     )
       return setError(
         "Provide administrator details and a password of at least 12 characters.",
@@ -95,7 +102,7 @@ export default function Setup({
         <Brand />
         <button className="text-button" onClick={onBack}>
           <ArrowLeft size={16} />
-          Back to sign in
+          {platform ? "Back to national administration" : "Back to sign in"}
         </button>
       </header>
       <main>
@@ -339,6 +346,77 @@ export default function Setup({
                   </button>
                 </div>
               ))}
+              <h3>Bulk import facilities</h3>
+              <p>
+                CSV/XLSX: facility_name, facility_code, facility_type,
+                subdistrict, community, ownership, latitude, longitude, status.
+              </p>
+              <input
+                type="file"
+                aria-label="Setup facility import file"
+                accept=".csv,.xlsx"
+                onChange={async (e) => {
+                  if (!e.target.files?.[0]) return;
+                  const fd = new FormData();
+                  fd.append("file", e.target.files[0]);
+                  fd.append(
+                    "subdistricts",
+                    JSON.stringify(data.subdistricts.map((s: Row) => s.name)),
+                  );
+                  try {
+                    setImportPreview(
+                      await api("/api/setup/facilities/validate", {
+                        method: "POST",
+                        body: fd,
+                      }),
+                    );
+                  } catch (e) {
+                    setError((e as Error).message);
+                  }
+                }}
+              />
+              {importPreview && (
+                <>
+                  <p>
+                    {importPreview.valid} valid · {importPreview.invalid}{" "}
+                    invalid · {importPreview.duplicates} duplicates
+                  </p>
+                  <Table
+                    rows={importPreview.rows}
+                    columns={[
+                      { key: "row", label: "Row" },
+                      { key: "name", label: "Facility" },
+                      { key: "status", label: "Status" },
+                      {
+                        key: "errors",
+                        label: "Issues",
+                        render: (r) => r.errors.join("; "),
+                      },
+                    ]}
+                  />
+                  <button
+                    className="secondary"
+                    disabled={
+                      !!importPreview.invalid ||
+                      !!importPreview.duplicates ||
+                      !importPreview.valid
+                    }
+                    onClick={() => {
+                      update("facilities", [
+                        ...data.facilities,
+                        ...importPreview.rows.map((r: Row) => r.data),
+                      ]);
+                      setImportPreview(null);
+                    }}
+                  >
+                    Use validated facilities
+                  </button>
+                  <p>
+                    Correct errors in the source file and upload again before
+                    proceeding.
+                  </p>
+                </>
+              )}
               <button
                 className="secondary"
                 onClick={() =>
@@ -370,28 +448,39 @@ export default function Setup({
                   autoComplete="email"
                 />
               </Field>
-              <Field
-                label="Secure password"
-                hint="At least 12 characters. Share through a secure channel."
-              >
-                <input
-                  type="password"
-                  value={data.password}
-                  onChange={(e) => update("password", e.target.value)}
-                  autoComplete="new-password"
-                />
-              </Field>
-              <Field
-                label="Authorized setup token"
-                hint="Provided by the platform operator to authorize organization creation."
-              >
-                <input
-                  type="password"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  autoComplete="off"
-                />
-              </Field>
+              {!platform && (
+                <>
+                  <Field
+                    label="Secure password"
+                    hint="At least 12 characters. Share through a secure channel."
+                  >
+                    <input
+                      type="password"
+                      value={data.password}
+                      onChange={(e) => update("password", e.target.value)}
+                      autoComplete="new-password"
+                    />
+                  </Field>
+                  <Field
+                    label="Authorized setup token"
+                    hint="Provided by the platform operator to authorize organization creation."
+                  >
+                    <input
+                      type="password"
+                      value={token}
+                      onChange={(e) => setToken(e.target.value)}
+                      autoComplete="off"
+                    />
+                  </Field>
+                </>
+              )}
+              {platform && (
+                <p className="notice">
+                  New administrators receive a single-use password setup link.
+                  Existing accounts keep their password and receive an explicit
+                  district administrator assignment.
+                </p>
+              )}
             </div>
           )}
           {step === 5 && (
@@ -419,18 +508,29 @@ export default function Setup({
             </div>
           )}
           {step === 6 && (
-            <div className="notice">
-              <ShieldCheck />
-              <div>
-                <h3>Start with locally approved indicator definitions</h3>
-                <p>
-                  After setup, add indicators with numerator, denominator,
-                  target direction and approval reference in Administration →
-                  Indicators. No unvalidated clinical thresholds or fictional
-                  targets are loaded automatically.
-                </p>
-              </div>
-            </div>
+            <>
+              <p>
+                Add approved indicators and targets now, or configure them after
+                setup. NutriTrack does not invent local targets.
+              </p>
+              <Table
+                rows={data.indicators.map((i: Row, n: number) => ({
+                  ...i,
+                  id: n,
+                }))}
+                columns={[
+                  { key: "name", label: "Indicator" },
+                  { key: "target", label: "Target (%)" },
+                  { key: "approval_reference", label: "Approval" },
+                ]}
+              />
+              <IndicatorEditor
+                enabled={data.programmes}
+                onSave={async (d) => {
+                  update("indicators", [...data.indicators, d]);
+                }}
+              />
+            </>
           )}
           {step === 7 && (
             <>
@@ -495,13 +595,18 @@ export default function Setup({
                   setBusy(true);
                   setError("");
                   try {
-                    const result = await api("/api/setup", {
-                      method: "POST",
-                      headers: { "X-Setup-Token": token },
-                      body: JSON.stringify(data),
-                    });
-                    setTokens(result);
-                    onComplete();
+                    const result = await api(
+                      platform ? "/api/platform/organizations" : "/api/setup",
+                      {
+                        method: "POST",
+                        headers: platform ? {} : { "X-Setup-Token": token },
+                        body: JSON.stringify(
+                          platform ? { ...data, password: null } : data,
+                        ),
+                      },
+                    );
+                    if (!platform) setTokens(result);
+                    onComplete(result);
                   } catch (e) {
                     setError((e as Error).message);
                   } finally {

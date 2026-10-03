@@ -13,7 +13,8 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
     access_minutes: int = Field(default=15, ge=1, le=60)
     refresh_days: int = Field(default=7, ge=1, le=30)
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
+    evidence_encryption_key: str = ""
     smtp_host: str = ""
     smtp_port: int = 587
     smtp_user: str = ""

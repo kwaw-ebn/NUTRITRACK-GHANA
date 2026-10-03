@@ -1898,3 +1898,20 @@ code {
 .platform-admin header {
   gap: 20px;
 }
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 18px 0;
+}
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.platform-admin .notice input {
+  min-width: 260px;
+  width: 100%;
+}

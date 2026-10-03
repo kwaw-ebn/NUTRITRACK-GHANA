@@ -69,6 +69,7 @@ class Setup(Strict):
     password: str = Field(min_length=12, max_length=128)
     programmes: list[str] = Field(min_length=1, max_length=50)
     contact: str = Field(default="", max_length=200)
+    indicators: list["IndicatorIn"] = Field(default_factory=list, max_length=100)
 
 
 class MainAdminSetup(Strict):
@@ -161,6 +162,7 @@ class ActionUpdate(Strict):
 
 
 class IndicatorIn(Strict):
+    standard_id: str | None = None
     name: str = Field(min_length=3, max_length=160)
     programme: str
     definition: str = Field(min_length=5, max_length=2000)
@@ -215,11 +217,23 @@ class ConfigurationIn(Strict):
         default_factory=lambda: {"Completeness": 1, "Timeliness": 1, "Validity": 1}
     )
     report_deadline_day: int = Field(default=5, ge=1, le=28)
+    deterioration_threshold_pp: float = Field(default=5, ge=0.1, le=100)
+    supervision_checklist: list[str] = Field(default_factory=list, max_length=100)
+    approval_workflow: list[str] = Field(
+        default_factory=lambda: ["Draft", "Submitted", "Verified", "Approved", "Locked"]
+    )
 
     @model_validator(mode="after")
     def quality_policy(self):
+        if self.approval_workflow not in (
+            ["Draft", "Submitted", "Verified", "Approved", "Locked"],
+            ["Draft", "Submitted", "Approved", "Locked"],
+        ):
+            raise ValueError("Use the standard approval workflow, with verification optionally required")
         if (
-            set(self.quality_weights) != {"Completeness", "Timeliness", "Validity"}
+            not {"Completeness", "Timeliness", "Validity"} <= set(self.quality_weights)
+            or not set(self.quality_weights)
+            <= {"Completeness", "Timeliness", "Validity", "Consistency", "Duplicate rate"}
             or any(w < 0 or w > 100 for w in self.quality_weights.values())
             or sum(self.quality_weights.values()) <= 0
         ):
@@ -227,3 +241,75 @@ class ConfigurationIn(Strict):
                 "Configure positive quality weight totals for the three measured components"
             )
         return self
+
+
+class OrganizationProvision(Setup):
+    password: str | None = Field(default=None, min_length=12, max_length=128)
+
+
+class StaffProvision(Strict):
+    name: str = Field(min_length=2, max_length=120)
+    email: EmailStr
+    role: str
+    level: Literal["NATIONAL", "REGION", "ORGANIZATION"]
+    region_id: str | None = None
+    organization_id: str | None = None
+    subdistrict_id: str | None = None
+    facility_id: str | None = None
+    community_id: str | None = None
+
+
+class UserStatus(Strict):
+    active: bool
+
+
+class LocalStatus(Strict):
+    active: bool
+
+
+class ProgrammeIn(Strict):
+    code: str = Field(pattern=r"^[a-z][a-z0-9-]{1,59}$")
+    name: str = Field(min_length=3, max_length=120)
+    active: bool = True
+    approval_reference: str = Field(default="", max_length=250)
+    fields: list[dict] = Field(default_factory=list, max_length=40)
+
+
+Setup.model_rebuild()
+
+
+class StandardIndicatorIn(IndicatorIn):
+    code: str = Field(pattern=r"^[A-Z][A-Z0-9_]{1,59}$")
+    version: str = Field(min_length=1, max_length=40)
+    source_url: str = Field(min_length=5, max_length=500)
+    target: float | None = Field(default=None, ge=0, le=100)
+
+
+class SignalActionIn(Strict):
+    indicator_id: str
+    period: str = Field(pattern=r"^\d{4}-(0[1-9]|1[0-2])$")
+    assigned_to: str
+    due_date: date
+    problem: str = Field(min_length=10, max_length=4000)
+    facility_id: str | None = None
+
+
+class RegionChange(Strict):
+    name: str = Field(min_length=2, max_length=100)
+    region_code: str = Field(min_length=1, max_length=40)
+    capital: str | None = Field(default=None, max_length=100)
+    active: bool = True
+    source: str = Field(min_length=5, max_length=2000)
+    version: str = Field(min_length=2, max_length=60)
+    source_date: date
+
+
+class OfflineEncounterIn(Strict):
+    operation_id: str = Field(
+        pattern=r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    )
+    encounter: EncounterIn
+
+
+class ReportJobIn(Strict):
+    format: Literal["pdf", "xlsx"]

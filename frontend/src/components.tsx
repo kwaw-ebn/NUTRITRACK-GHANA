@@ -248,6 +248,7 @@ export function Select({
   options,
   required = true,
   value,
+  defaultValue,
   onChange,
   "aria-labelledby": labelledBy,
 }: {
@@ -255,6 +256,7 @@ export function Select({
   options: Row[];
   required?: boolean;
   value?: string;
+  defaultValue?: string;
   onChange?: (value: string) => void;
   "aria-labelledby"?: string;
 }) {
@@ -264,6 +266,7 @@ export function Select({
       name={name}
       required={required}
       value={value}
+      defaultValue={defaultValue}
       onChange={(e) => onChange?.(e.target.value)}
     >
       <option value="">Select…</option>

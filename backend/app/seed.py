@@ -2,8 +2,10 @@
 
 import csv, json, argparse, uuid
 from pathlib import Path
-from sqlalchemy import select
+from sqlalchemy import select, inspect, Table, MetaData
+from datetime import datetime, timezone
 from .db import SessionLocal
+from .forms import DEFAULT_FORMS
 from .models import Region, District, Programme, MasterImport, Audit
 
 DATA = Path(__file__).resolve().parent.parent / "data"
@@ -64,9 +66,30 @@ def run(directory=DATA, operator="initial-seed"):
             row.effective_to = d.get("effective_to") or None
             row.source = d["source"]
             row.version = manifest["version"]
+        table = Table("programmes", MetaData(), autoload_with=db.bind)
+        supports_forms = "fields" in table.c
         for code, name in PROGRAMMES:
-            if not db.scalar(select(Programme).where(Programme.code == code)):
-                db.add(Programme(code=code, name=name))
+            existing = db.execute(select(table).where(table.c.code == code)).mappings().first()
+            if not existing:
+                values = dict(
+                    id=str(uuid.uuid4()),
+                    code=code,
+                    name=name,
+                    active=True,
+                    created_at=datetime.now(timezone.utc),
+                    updated_at=datetime.now(timezone.utc),
+                )
+                if supports_forms:
+                    values.update(
+                        fields=DEFAULT_FORMS.get(code, []), schema_version=1, approval_reference=""
+                    )
+                db.execute(table.insert().values(**values))
+            elif supports_forms and existing["schema_version"] == 1 and not existing["fields"]:
+                db.execute(
+                    table.update()
+                    .where(table.c.code == code)
+                    .values(fields=DEFAULT_FORMS.get(code, []))
+                )
         if not db.scalar(select(MasterImport).where(MasterImport.version == manifest["version"])):
             db.add(
                 MasterImport(

@@ -9,13 +9,21 @@ A configurable nutrition programme workspace connecting **Data → Signal → Ac
 
 ## What works
 
-- Organization setup with 16 regions and a searchable region-filtered 261-MMDA government-source directory; manually entered local health structure and enabled programmes.
+- Organization setup with 16 regions, typed health districts, sub-districts, facilities and communities. Assembly districts are excluded from operational setup; the historical directory is retained separately.
 - Secure sign-in, refresh rotation, password reset backend, role/organization/facility/community scope and audited changes.
 - Facility management and validated CSV/XLSX import/export; client registration, measurements, assessment and encounter history.
 - Scheduled encounters create follow-up actions. Staff can also create programme/supervision actions, assign responsibility, track deadlines and record outcomes.
 - Locally approved indicator registry; monthly report submission, correction, verification, approval, locking and authorized amendments.
 - Approved-report trends, target exception signals, explainable facility quality components, facility maps without patient locations.
 - Supervision, intervention, school and nutrition commodity registers; organization configuration, audit log, system status and changelog.
+
+## Release 0.2.0
+
+The main administrator can manage organizations, staff assignments, national/regional access, programme templates, shared indicator standards, master data and system status. Owner oversight is aggregate; clinical access requires an explicit assignment. New staff receive a single-use invitation link for secure manual delivery; existing passwords remain unchanged.
+
+This release adds versioned programme capture, comparable approved-report intelligence, reporting completeness with explicit denominators, deterioration signals and duplicate-safe linked actions. Supervision supports scheduling, checklists, comparison and encrypted evidence. Reports export to PDF/XLSX directly or through an encrypted durable queue. Interrupted-session encounters can be encrypted on a device and synchronized with idempotent receipts.
+
+See [requirements](docs/REQUIREMENTS.md), [deployment](docs/DEPLOYMENT.md) and [recovery](docs/RECOVERY.md). Clinical acceptance, live backup verification and production security review remain required.
 
 ## Local development
 
