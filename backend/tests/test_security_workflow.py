@@ -39,6 +39,7 @@ def setup(c, name, email):
             "organization_type": "District Health Directorate",
             "region_id": central["id"],
             "district_id": district["id"],
+            "health_district_name": name + " health district",
             "subdistricts": [{"name": "Test subdistrict"}],
             "facilities": [
                 {
@@ -131,7 +132,8 @@ def test_tenant_scope_and_role_denials(client):
     )
     assert viewer.status_code == 201
     login = client.post(
-        "/api/auth/login", json={"email": "viewer@example.org", "password": "StrongPassword123!"}
+        "/api/auth/login",
+        json={"email": "viewer@example.org", "password": "StrongPassword123!"},
     ).json()
     vh = {**h, "Authorization": "Bearer " + login["access_token"]}
     assert client.get("/api/clients", headers=vh).status_code == 403
@@ -238,7 +240,9 @@ def test_report_lock_amendment_and_denominator(client):
     assert dashboard["indicators"][0]["value"] == 60
     assert len(dashboard["signals"]) == 1
     amendment = client.post(
-        f"/api/reports/{id}/amend", headers=h, json={"reason": "Correct a documented entry error"}
+        f"/api/reports/{id}/amend",
+        headers=h,
+        json={"reason": "Correct a documented entry error"},
     )
     assert amendment.status_code == 200
     assert amendment.json()["revision"] == 2
@@ -263,7 +267,9 @@ def test_refresh_rotation_logout_and_setup_token(client):
     h["Authorization"] = "Bearer " + refreshed.json()["access_token"]
     assert (
         client.post(
-            "/api/auth/logout", headers=h, json={"refresh_token": refreshed.json()["refresh_token"]}
+            "/api/auth/logout",
+            headers=h,
+            json={"refresh_token": refreshed.json()["refresh_token"]},
         ).status_code
         == 200
     )
@@ -368,7 +374,8 @@ def test_facility_scope_programme_reads_and_technical_role(client):
         == 201
     )
     t = client.post(
-        "/api/auth/login", json={"email": "nurse@example.org", "password": "StrongPassword123!"}
+        "/api/auth/login",
+        json={"email": "nurse@example.org", "password": "StrongPassword123!"},
     ).json()
     nh = {**h, "Authorization": "Bearer " + t["access_token"]}
     assert len(client.get("/api/clients", headers=nh).json()) == 1
@@ -387,12 +394,15 @@ def test_facility_scope_programme_reads_and_technical_role(client):
         db.flush()
         db.add(
             Membership(
-                user_id=user.id, organization_id=h["X-Organization-ID"], role="System Administrator"
+                user_id=user.id,
+                organization_id=h["X-Organization-ID"],
+                role="System Administrator",
             )
         )
         db.commit()
     t = client.post(
-        "/api/auth/login", json={"email": "operator@example.org", "password": "StrongPassword123!"}
+        "/api/auth/login",
+        json={"email": "operator@example.org", "password": "StrongPassword123!"},
     ).json()
     sh = {**h, "Authorization": "Bearer " + t["access_token"]}
     assert client.get("/api/admin/health", headers=sh).status_code == 200
@@ -420,7 +430,8 @@ def test_aggregate_memberships_and_configurable_quality(client):
         )
         db.commit()
     t = client.post(
-        "/api/auth/login", json={"email": "regional@example.org", "password": "StrongPassword123!"}
+        "/api/auth/login",
+        json={"email": "regional@example.org", "password": "StrongPassword123!"},
     ).json()
     rh = {**h, "Authorization": "Bearer " + t["access_token"]}
     aggregate = client.get("/api/aggregate/dashboard", headers=rh).json()
@@ -459,7 +470,10 @@ def test_reset_revokes_sessions_and_auth_limiter(client):
     assert (
         client.post(
             "/api/auth/password-reset/complete",
-            json={"token": "fictional-reset-token-long-enough", "password": "ChangedPassword123!"},
+            json={
+                "token": "fictional-reset-token-long-enough",
+                "password": "ChangedPassword123!",
+            },
         ).status_code
         == 200
     )
@@ -467,20 +481,142 @@ def test_reset_revokes_sessions_and_auth_limiter(client):
     assert (
         client.post(
             "/api/auth/password-reset/complete",
-            json={"token": "fictional-reset-token-long-enough", "password": "ChangedPassword123!"},
+            json={
+                "token": "fictional-reset-token-long-enough",
+                "password": "ChangedPassword123!",
+            },
         ).status_code
         == 400
     )
     for _ in range(10):
         assert (
             client.post(
-                "/api/auth/login", json={"email": "missing@example.org", "password": "wrong"}
+                "/api/auth/login",
+                json={"email": "missing@example.org", "password": "wrong"},
             ).status_code
             == 401
         )
     assert (
         client.post(
-            "/api/auth/login", json={"email": "missing@example.org", "password": "wrong"}
+            "/api/auth/login",
+            json={"email": "missing@example.org", "password": "wrong"},
         ).status_code
         == 429
+    )
+
+
+def test_health_hierarchy_and_inherited_area_access(client):
+    from app.security import tokens
+
+    h, s, _ = setup(client, "First directorate", "first@example.org")
+    other_h, other, _ = setup(client, "Second directorate", "second@example.org")
+    with SessionLocal() as db:
+        ashanti = db.scalar(select(Region).where(Region.name == "Ashanti"))
+        o = db.get(Organization, other_h["X-Organization-ID"])
+        hd = db.get(HealthDistrict, o.health_district_id)
+        o.region_id = ashanti.id
+        hd.region_id = ashanti.id
+        o.district_id = None  # Health district has no required Assembly equivalent.
+        central_id = s["organization"]["region_id"]
+        headers = {}
+        for level, region, role in [
+            ("REGION", central_id, "Regional Nutrition Officer"),
+            ("NATIONAL", None, "National Nutrition Administrator"),
+        ]:
+            u = User(
+                email=level.lower() + "@example.org",
+                name=level,
+                password_hash=passwords.hash("StrongPassword123!"),
+            )
+            db.add(u)
+            db.flush()
+            db.add(AccessGrant(user_id=u.id, level=level, region_id=region, role=role))
+            headers[level] = {"Authorization": "Bearer " + tokens(db, u)["access_token"]}
+        db.commit()
+    regional = headers["REGION"]
+    national = headers["NATIONAL"]
+    assert len(client.get("/api/auth/me", headers=regional).json()["memberships"]) == 1
+    assert len(client.get("/api/auth/me", headers=national).json()["memberships"]) == 2
+    assert client.get("/api/aggregate/dashboard", headers=regional).json()["districts"] == 1
+    assert client.get("/api/aggregate/dashboard", headers=national).json()["districts"] == 2
+    assert (
+        client.get(
+            "/api/structure",
+            headers={**regional, "X-Organization-ID": other_h["X-Organization-ID"]},
+        ).status_code
+        == 403
+    )
+    assert (
+        client.get(
+            "/api/clients",
+            headers={**national, "X-Organization-ID": h["X-Organization-ID"]},
+        ).status_code
+        == 403
+    )
+    assert (
+        client.get(
+            "/api/structure",
+            headers={**national, "X-Organization-ID": other_h["X-Organization-ID"]},
+        ).status_code
+        == 200
+    )
+    # A sub-district assignment cannot read facilities or clients outside that sub-district.
+    sub = client.post(
+        "/api/subdistricts", headers=h, json={"name": "Other health subdistrict"}
+    ).json()
+    facility = client.post(
+        "/api/facilities",
+        headers=h,
+        json={
+            "name": "Other facility",
+            "facility_type": "CHPS",
+            "subdistrict_id": sub["id"],
+        },
+    ).json()
+    created = client.post(
+        "/api/users",
+        headers=h,
+        json={
+            "name": "Scoped nutritionist",
+            "email": "scoped@example.org",
+            "password": "StrongPassword123!",
+            "role": "Nutritionist/Dietitian",
+            "subdistrict_id": s["subdistricts"][0]["id"],
+        },
+    )
+    assert created.status_code == 201, created.text
+    login = client.post(
+        "/api/auth/login",
+        json={"email": "scoped@example.org", "password": "StrongPassword123!"},
+    ).json()
+    scoped = {
+        "Authorization": "Bearer " + login["access_token"],
+        "X-Organization-ID": h["X-Organization-ID"],
+    }
+    structure = client.get("/api/structure", headers=scoped).json()
+    assert [f["id"] for f in structure["facilities"]] == [s["facilities"][0]["id"]]
+    assert len(structure["subdistricts"]) == 1
+    assert (
+        client.get("/api/facilities/" + facility["id"] + "/profile", headers=scoped).status_code
+        == 404
+    )
+    assert client.get("/api/dashboard", headers=scoped).json()["facilities"] == 1
+    assert (
+        client.post(
+            "/api/clients",
+            headers=scoped,
+            json={
+                "name": "Outside client",
+                "reference": "OUT-1",
+                "date_of_birth": "2020-01-01",
+                "sex": "Female",
+                "facility_id": facility["id"],
+            },
+        ).status_code
+        == 404
+    )
+    # Public setup cannot grant national privileges by changing organization label.
+    assert all(
+        m["role"] == "District Nutrition Officer"
+        for m in client.get("/api/auth/me", headers=h).json()["memberships"]
     )

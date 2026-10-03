@@ -552,14 +552,14 @@ export default function App() {
             }}
           >
             {me.memberships.map((m: Row) => (
-              <option key={m.id} value={m.organization_id}>
+              <option key={m.organization_id} value={m.organization_id}>
                 {m.organization.name}
               </option>
             ))}
           </select>
           <span>
             <span className="live-dot" />
-            Secure organization scope
+            {(member?.access_level || "HEALTH_DISTRICT").replaceAll("_", " ").toLowerCase()} access
           </span>
         </div>
         <nav>
@@ -2532,6 +2532,7 @@ export default function App() {
               onSubmit={(d) =>
                 save("/api/users", {
                   ...d,
+                  subdistrict_id: d.subdistrict_id || null,
                   facility_id: d.facility_id || null,
                   community_id: d.community_id || null,
                 })
@@ -2568,6 +2569,9 @@ export default function App() {
                     <option key={v}>{v}</option>
                   ))}
                 </select>
+              </Field>
+              <Field label="Health sub-district scope (optional)">
+                <Select name="subdistrict_id" options={structure.subdistricts} required={false} />
               </Field>
               <Field label="Facility scope">
                 <Select

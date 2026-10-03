@@ -7,7 +7,15 @@ production service's restricted shell identity and retain deployment audit logs.
 import argparse, getpass
 from sqlalchemy import select
 from .db import SessionLocal
-from .models import User, Membership, Organization, Programme, Audit
+from .models import (
+    User,
+    Membership,
+    Organization,
+    Programme,
+    Audit,
+    AccessGrant,
+    Region,
+)
 from .security import passwords, ROLES
 
 
@@ -20,13 +28,53 @@ def main():
     member.add_argument("--organization", required=True)
     member.add_argument("--role", required=True, choices=ROLES)
     member.add_argument("--operator", required=True)
+    grant = sub.add_parser("grant-area-access")
+    grant.add_argument("--email", required=True)
+    grant.add_argument("--name", required=True)
+    grant.add_argument("--level", required=True, choices=["NATIONAL", "REGION"])
+    grant.add_argument("--region")
+    grant.add_argument("--operator", required=True)
     programme = sub.add_parser("add-programme")
     programme.add_argument("--code", required=True)
     programme.add_argument("--name", required=True)
     programme.add_argument("--operator", required=True)
     args = parser.parse_args()
     with SessionLocal() as db:
-        if args.command == "grant-membership":
+        if args.command == "grant-area-access":
+            if args.level == "REGION" and (not args.region or not db.get(Region, args.region)):
+                raise ValueError("Regional access requires a valid region UUID")
+            if args.level == "NATIONAL" and args.region:
+                raise ValueError("National access must not specify a region")
+            user = db.scalar(select(User).where(User.email == args.email.lower()))
+            if not user:
+                password = getpass.getpass("New user secure password (min 12 characters): ")
+                if len(password) < 12:
+                    raise ValueError("Password is too short")
+                user = User(
+                    email=args.email.lower(),
+                    name=args.name,
+                    password_hash=passwords.hash(password),
+                )
+                db.add(user)
+                db.flush()
+            role = (
+                "National Nutrition Administrator"
+                if args.level == "NATIONAL"
+                else "Regional Nutrition Officer"
+            )
+            db.add(AccessGrant(user_id=user.id, level=args.level, region_id=args.region, role=role))
+            db.add(
+                Audit(
+                    actor_id=user.id,
+                    event="operator.area_access_granted",
+                    details={
+                        "operator": args.operator,
+                        "level": args.level,
+                        "region_id": args.region,
+                    },
+                )
+            )
+        elif args.command == "grant-membership":
             if not db.get(Organization, args.organization):
                 raise ValueError("Organization not found")
             user = db.scalar(select(User).where(User.email == args.email.lower()))
@@ -35,13 +83,16 @@ def main():
                 if len(password) < 12:
                     raise ValueError("Password is too short")
                 user = User(
-                    email=args.email.lower(), name=args.name, password_hash=passwords.hash(password)
+                    email=args.email.lower(),
+                    name=args.name,
+                    password_hash=passwords.hash(password),
                 )
                 db.add(user)
                 db.flush()
             existing = db.scalar(
                 select(Membership).where(
-                    Membership.user_id == user.id, Membership.organization_id == args.organization
+                    Membership.user_id == user.id,
+                    Membership.organization_id == args.organization,
                 )
             )
             if existing:

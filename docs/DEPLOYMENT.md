@@ -39,22 +39,23 @@ Create a static site, root directory `frontend`.
 
 1. Visit the frontend, select **Set up your organization**.
 2. Use the operator-issued setup token. This token is entered once and not persisted in browser storage.
-3. Choose region and searchable MMDA; enter health sub-districts and facilities, administrator and programmes.
+3. Choose region and type the approved health district name; optionally link an Assembly MMDA; enter health sub-districts and facilities, administrator and programmes.
 4. After setup, add locally approved indicators (including definitions and approval references). Add communities and scoped staff accounts; import facilities through the validated CSV/XLSX workflow.
 5. Passwords and refresh tokens are never written to browser localStorage. Refresh tokens are rotated and stored only in memory; reload requires sign-in. Logout invalidates every server session for that account.
 6. Configure SMTP before relying on password-reset email. Reset responses do not reveal whether an account exists. Reset links expire in 30 minutes and invalidate existing sessions.
 
 ## National/regional roles and registry maintenance
 
-Provision higher-scope roles only from the restricted backend shell. Every district must be explicitly assigned. Technical System Administrator membership grants status/audit access, not client access.
+Provision higher-scope roles only from the restricted backend shell. National grants include all organization workspaces; regional grants include only workspaces in the assigned region, including future organizations. Technical System Administrator membership grants status/audit access, not client access.
 
 ```sh
-python -m app.admin grant-membership --email officer@example.org --name 'Authorized Officer' --organization ORGANIZATION_UUID --role 'Regional Nutrition Officer' --operator CHANGE_REFERENCE
+python -m app.admin grant-area-access --email officer@example.org --name 'Regional Officer' --level REGION --region REGION_UUID --operator CHANGE_REFERENCE
+python -m app.admin grant-area-access --email national@example.org --name 'National Officer' --level NATIONAL --operator CHANGE_REFERENCE
 python -m app.admin add-programme --code approved-programme --name 'Approved Programme' --operator CHANGE_REFERENCE
 python -m app.seed --directory /approved/versioned/master-data --operator CHANGE_REFERENCE
 ```
 
-National/regional `/api/aggregate/dashboard` pools reporting counts only over explicit memberships. Standardized national indicator IDs, suppression rules and cross-district indicator comparability remain rollout gates.
+National/regional `/api/aggregate/dashboard` pools reporting counts only over authorized national/regional assignments and explicit memberships. Standardized national indicator IDs, suppression rules and cross-district indicator comparability remain rollout gates.
 
 ## Docker
 
@@ -63,3 +64,11 @@ Backend and frontend Dockerfiles are included. Frontend `VITE_API_URL` is a buil
 ## Verification
 
 After deployment: verify `/health`, migrate/seed, confirm all 16 regions and 261 MMDA rows, test setup, sign-in, a second organization access denial, facility role scope, report approval/locking/amendment, sign-out, password reset email delivery and mobile operation. Test database restore independently. Do not load real client data until acceptance and governance approvals are complete.
+
+## Health hierarchy migration (0002)
+
+Run `python -m alembic upgrade head` before deploying the updated API. Health districts are a separate table from the 261 Assembly MMDAs. Existing organizations retain their Assembly link; their old label is copied into a provisional health district with source `Migrated assembly label; health directorate verification required`. An authorized operator must review those labels with the health directorate; migration does not establish a verified health-sector directory. New onboarding requires an entered health district and permits no Assembly link.
+
+District administrators can assign an operational user to a health sub-district, facility, or community through Administration → Users. A facility and sub-district chosen together must match. District Nutrition Officer accounts cannot be narrowed to a subordinate scope; use Nutritionist/Dietitian, Data Officer or another appropriate operational role. Assigned scope is enforced by API queries, not browser filtering. National/regional provisioning uses a restricted shell and audit reference; ordinary registration cannot grant those privileges. Deactivate `access_grants.active` through a reviewed operator database change to revoke an area assignment until a management UI is available.
+
+Migration downgrade refuses health-only organizations because the previous schema requires an Assembly reference. Review a backup/restore plan before production migration. No administrative geography is deleted.

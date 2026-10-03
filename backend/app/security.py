@@ -7,7 +7,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from .config import settings
 from .db import get_db
-from .models import User, Membership, Session, Audit
+from .models import User, Membership, Session, Audit, AccessGrant, Organization
+from types import SimpleNamespace
 
 passwords = PasswordHash.recommended()
 bearer = HTTPBearer(auto_error=False)
@@ -84,7 +85,8 @@ def tokens(db, user):
 
 
 def current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer), db=Depends(get_db)
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
+    db=Depends(get_db),
 ):
     try:
         if not credentials:
@@ -117,14 +119,58 @@ def scope(
     user=Depends(current_user),
     db=Depends(get_db),
 ):
-    member = db.scalar(
-        select(Membership).where(
-            Membership.organization_id == organization_id, Membership.user_id == user.id
-        )
-    )
+    members = authorized_memberships(db, user.id)
+    member = next((m for m in members if m.organization_id == organization_id), None)
     if not member:
         raise HTTPException(403, "You do not have access to this organization")
     return member
+
+
+def authorized_memberships(db, user_id, aggregate_only=False):
+    """Resolve explicit assignments; rank never grants clinical access."""
+    members = list(db.scalars(select(Membership).where(Membership.user_id == user_id)))
+    if aggregate_only:
+        members = [
+            m
+            for m in members
+            if m.role in {"National Nutrition Administrator", "Regional Nutrition Officer"}
+        ]
+    existing = {m.organization_id for m in members}
+    grants = db.scalars(
+        select(AccessGrant).where(AccessGrant.user_id == user_id, AccessGrant.active == True)
+    )
+    for grant in grants:
+        if (
+            grant.level == "NATIONAL"
+            and grant.role == "National Nutrition Administrator"
+            and grant.region_id is None
+        ):
+            query = select(Organization)
+        elif (
+            grant.level == "REGION"
+            and grant.role == "Regional Nutrition Officer"
+            and grant.region_id
+        ):
+            query = select(Organization).where(Organization.region_id == grant.region_id)
+        else:
+            continue  # Invalid assignments fail closed.
+        for organization in db.scalars(query):
+            if organization.id in existing:
+                continue
+            members.append(
+                SimpleNamespace(
+                    id=grant.id,
+                    user_id=user_id,
+                    organization_id=organization.id,
+                    role=grant.role,
+                    facility_id=None,
+                    community_id=None,
+                    subdistrict_id=None,
+                    access_level=grant.level,
+                )
+            )
+            existing.add(organization.id)
+    return members
 
 
 def require(member, roles):

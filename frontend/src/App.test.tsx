@@ -17,14 +17,7 @@ test("Onboard a fictional district and save/deactivate a facility through the UI
   await user.click(screen.getByRole("button", { name: "Continue" }));
   await user.click(screen.getByRole("combobox", { name: "Region" }));
   await user.click(await screen.findByRole("option", { name: "Central" }));
-  await user.click(
-    screen.getByRole("combobox", {
-      name: /Metropolitan \/ Municipal \/ District/,
-    }),
-  );
-  await user.click(
-    await screen.findByRole("option", { name: "Agona East District" }),
-  );
+  await user.type(screen.getByLabelText("Health district"), "Fictional Health District");
   await user.click(screen.getByRole("button", { name: "Continue" }));
   await user.type(
     screen.getByLabelText("Sub-district 1"),

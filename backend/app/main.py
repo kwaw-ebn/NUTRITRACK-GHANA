@@ -1,7 +1,16 @@
 import csv, io, json, secrets, smtplib, calendar
 from email.message import EmailMessage
 from datetime import date, datetime, timedelta, timezone
-from fastapi import FastAPI, Depends, HTTPException, Request, Response, UploadFile, File, Header
+from fastapi import (
+    FastAPI,
+    Depends,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+    File,
+    Header,
+)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import select, func, text
@@ -13,6 +22,7 @@ from .db import get_db
 from .models import *
 from .schemas import *
 from .security import (
+    authorized_memberships,
     current_user,
     scope,
     require,
@@ -36,7 +46,12 @@ app.add_middleware(
     allow_origins=settings().cors_origins.split(","),
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT", "PATCH"],
-    allow_headers=["Authorization", "Content-Type", "X-Organization-ID", "X-Setup-Token"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "X-Organization-ID",
+        "X-Setup-Token",
+    ],
 )
 
 
@@ -77,6 +92,23 @@ def org(db, m):
 
 def scoped_query(model, m):
     query = select(model).where(model.organization_id == m.organization_id)
+    if m.subdistrict_id:
+        facility_ids = select(Facility.id).where(
+            Facility.organization_id == m.organization_id,
+            Facility.subdistrict_id == m.subdistrict_id,
+        )
+        if model is Subdistrict:
+            query = query.where(Subdistrict.id == m.subdistrict_id)
+        elif model is Facility:
+            query = query.where(Facility.subdistrict_id == m.subdistrict_id)
+        elif hasattr(model, "facility_id"):
+            query = query.where(model.facility_id.in_(facility_ids))
+    if m.facility_id and model is Facility:
+        query = query.where(Facility.id == m.facility_id)
+    if m.facility_id and model is Subdistrict:
+        query = query.where(
+            Subdistrict.id.in_(select(Facility.subdistrict_id).where(Facility.id == m.facility_id))
+        )
     if m.facility_id and hasattr(model, "facility_id"):
         query = query.where(model.facility_id == m.facility_id)
     if m.community_id and model is Client:
@@ -227,11 +259,29 @@ def logout(data: Refresh, user=Depends(current_user), db=Depends(get_db)):
 
 @app.get("/api/auth/me")
 def me(user=Depends(current_user), db=Depends(get_db)):
-    memberships = db.scalars(select(Membership).where(Membership.user_id == user.id)).all()
+    memberships = authorized_memberships(db, user.id)
     return {
         "user": serialize(user),
         "memberships": [
-            dict(serialize(m), organization=serialize(org(db, m))) for m in memberships
+            dict(
+                id=m.id,
+                organization_id=m.organization_id,
+                role=m.role,
+                facility_id=m.facility_id,
+                community_id=m.community_id,
+                subdistrict_id=m.subdistrict_id,
+                access_level=getattr(
+                    m,
+                    "access_level",
+                    (
+                        "FACILITY"
+                        if m.facility_id
+                        else "SUBDISTRICT" if m.subdistrict_id else "HEALTH_DISTRICT"
+                    ),
+                ),
+                organization=serialize(org(db, m)),
+            )
+            for m in memberships
         ],
     }
 
@@ -244,7 +294,9 @@ def request_reset(data: ResetRequest, request: Request, db=Depends(get_db)):
         token = secrets.token_urlsafe(48)
         db.add(
             PasswordReset(
-                user_id=user.id, token_hash=digest(token), expires_at=utc() + timedelta(minutes=30)
+                user_id=user.id,
+                token_hash=digest(token),
+                expires_at=utc() + timedelta(minutes=30),
             )
         )
         message = EmailMessage()
@@ -302,15 +354,35 @@ def setup(
         setup_token, settings().setup_token
     ):
         raise HTTPException(403, "An authorized onboarding token is required")
-    district = db.get(District, data.district_id)
-    if not district or not district.active or district.region_id != data.region_id:
-        raise HTTPException(422, "Choose an MMDA belonging to the selected region")
+    region = db.get(Region, data.region_id)
+    if not region or not region.active:
+        raise HTTPException(422, "Choose an active region")
+    if data.district_id:
+        district = db.get(District, data.district_id)
+        if not district or not district.active or district.region_id != data.region_id:
+            raise HTTPException(422, "Choose an MMDA belonging to the selected region")
+    health_name = data.health_district_name.strip()
+    if len(health_name) < 2:
+        raise HTTPException(422, "Enter the health district name")
+    health_district = db.scalar(
+        select(HealthDistrict).where(
+            HealthDistrict.region_id == data.region_id,
+            func.lower(HealthDistrict.name) == health_name.lower(),
+        )
+    )
+    if not health_district:
+        health_district = HealthDistrict(name=health_name, region_id=data.region_id)
+        db.add(health_district)
+        db.flush()
+    elif not health_district.active:
+        raise HTTPException(422, "This health district is inactive")
     codes = set(db.scalars(select(Programme.code).where(Programme.active == True)))
     if not set(data.programmes) <= codes:
         raise HTTPException(422, "Unknown programme")
     if db.scalar(select(User).where(User.email == data.admin_email.lower())):
         raise HTTPException(
-            409, "Administrator email already exists. Ask an administrator to add membership."
+            409,
+            "Administrator email already exists. Ask an administrator to add membership.",
         )
     if len({s.name.casefold() for s in data.subdistricts}) != len(data.subdistricts):
         raise HTTPException(422, "Duplicate sub-districts")
@@ -319,6 +391,7 @@ def setup(
         organization_type=data.organization_type,
         region_id=data.region_id,
         district_id=data.district_id,
+        health_district_id=health_district.id,
         configuration={
             "programmes": data.programmes,
             "facility_types": [
@@ -356,7 +429,9 @@ def setup(
     db.add(user)
     db.flush()
     member = Membership(
-        user_id=user.id, organization_id=organization.id, role="District Nutrition Officer"
+        user_id=user.id,
+        organization_id=organization.id,
+        role="District Nutrition Officer",
     )
     db.add(member)
     db.flush()
@@ -478,7 +553,7 @@ def export_facilities(m=Depends(scope), db=Depends(get_db)):
         ]
         writer.writerow(
             [
-                "'" + v if isinstance(v, str) and v.startswith(("=", "+", "-", "@")) else v
+                ("'" + v if isinstance(v, str) and v.startswith(("=", "+", "-", "@")) else v)
                 for v in row
             ]
         )
@@ -533,7 +608,7 @@ async def validate_import(file: UploadFile = File(), m=Depends(scope), db=Depend
                 community=r.get("community") or None,
                 ownership=r.get("ownership") or "Public",
                 latitude=None if r.get("latitude") in ("", None) else r.get("latitude"),
-                longitude=None if r.get("longitude") in ("", None) else r.get("longitude"),
+                longitude=(None if r.get("longitude") in ("", None) else r.get("longitude")),
                 active=str(r.get("status") or "active").lower() == "active",
             )
             validate_facility(value, m, db)
@@ -544,7 +619,7 @@ async def validate_import(file: UploadFile = File(), m=Depends(scope), db=Depend
             {
                 "row": i,
                 "name": name,
-                "status": "Duplicate" if duplicate else ("Invalid" if errors else "Valid"),
+                "status": ("Duplicate" if duplicate else ("Invalid" if errors else "Valid")),
                 "errors": errors,
                 "data": value.model_dump() if value else None,
             }
@@ -578,19 +653,33 @@ def import_facilities(data: list[FacilityIn], m=Depends(scope), db=Depends(get_d
 @app.get("/api/users")
 def users(m=Depends(scope), db=Depends(get_db)):
     require(m, MANAGERS)
+    query = (
+        select(User, Membership)
+        .join(Membership, User.id == Membership.user_id)
+        .where(Membership.organization_id == m.organization_id)
+    )
+    if m.facility_id:
+        query = query.where(Membership.facility_id == m.facility_id)
+    elif m.subdistrict_id:
+        query = query.where(
+            (Membership.subdistrict_id == m.subdistrict_id)
+            | Membership.facility_id.in_(
+                select(Facility.id).where(
+                    Facility.organization_id == m.organization_id,
+                    Facility.subdistrict_id == m.subdistrict_id,
+                )
+            )
+        )
     return [
         dict(
             id=u.id,
             name=u.name,
             email=u.email,
             role=membership.role,
+            subdistrict_id=membership.subdistrict_id,
             facility_id=membership.facility_id,
         )
-        for u, membership in db.execute(
-            select(User, Membership)
-            .join(Membership, User.id == Membership.user_id)
-            .where(Membership.organization_id == m.organization_id)
-        )
+        for u, membership in db.execute(query)
     ]
 
 
@@ -603,8 +692,14 @@ def add_user(data: UserIn, m=Depends(scope), db=Depends(get_db)):
         "Regional Nutrition Officer",
     }:
         raise HTTPException(422, "Higher-scope roles require technical provisioning")
+    if data.role == "District Nutrition Officer" and (data.subdistrict_id or data.facility_id):
+        raise HTTPException(422, "Use an operational role for sub-district or facility staff")
+    if data.subdistrict_id:
+        owned(db, Subdistrict, data.subdistrict_id, m)
     if data.facility_id:
-        facility(db, data.facility_id, m)
+        selected_facility = facility(db, data.facility_id, m)
+        if data.subdistrict_id and selected_facility.subdistrict_id != data.subdistrict_id:
+            raise HTTPException(422, "Facility does not belong to selected sub-district")
     if (
         data.role
         in {
@@ -625,10 +720,13 @@ def add_user(data: UserIn, m=Depends(scope), db=Depends(get_db)):
             raise HTTPException(422, "Community does not belong to facility")
     if db.scalar(select(User).where(User.email == data.email.lower())):
         raise HTTPException(
-            409, "User exists; membership must be provisioned by an authorized administrator"
+            409,
+            "User exists; membership must be provisioned by an authorized administrator",
         )
     user = User(
-        name=data.name, email=data.email.lower(), password_hash=passwords.hash(data.password)
+        name=data.name,
+        email=data.email.lower(),
+        password_hash=passwords.hash(data.password),
     )
     db.add(user)
     db.flush()
@@ -637,6 +735,7 @@ def add_user(data: UserIn, m=Depends(scope), db=Depends(get_db)):
             user_id=user.id,
             organization_id=m.organization_id,
             role=data.role,
+            subdistrict_id=data.subdistrict_id,
             facility_id=data.facility_id,
             community_id=data.community_id,
         )
@@ -903,7 +1002,12 @@ def transition(id: str, data: Transition, m=Depends(scope), db=Depends(get_db)):
         m,
         "report.transition",
         id,
-        {"from": row.state, "to": data.state, "reason": data.reason, "revision": row.revision},
+        {
+            "from": row.state,
+            "to": data.state,
+            "reason": data.reason,
+            "revision": row.revision,
+        },
     )
     row.state = data.state
     row.modified_by = m.user_id
@@ -1129,12 +1233,19 @@ def dashboard(m=Depends(scope), db=Depends(get_db)):
                 None,
             )
             timely = 100 if submitted and submitted.created_at.date() <= deadline else 0
-        components = {"Completeness": completeness, "Timeliness": timely, "Validity": validity}
+        components = {
+            "Completeness": completeness,
+            "Timeliness": timely,
+            "Validity": validity,
+        }
         weights = org(db, m).configuration.get(
             "quality_weights", {"Completeness": 1, "Timeliness": 1, "Validity": 1}
         )
         score = (
-            round(sum(components[k] * weights[k] for k in components) / sum(weights.values()), 1)
+            round(
+                sum(components[k] * weights[k] for k in components) / sum(weights.values()),
+                1,
+            )
             if recent
             else None
         )
@@ -1173,7 +1284,7 @@ def dashboard(m=Depends(scope), db=Depends(get_db)):
         "trends": trends,
         "signals": signals,
         "facility_profiles": facility_profiles,
-        "actions": [serialize(a) for a in operational] if m.role not in AGGREGATE else [],
+        "actions": ([serialize(a) for a in operational] if m.role not in AGGREGATE else []),
         "methodology": "Indicators use approved/locked reports only; pooled numerators and denominators. No denominator means no estimate. Quality score uses configured weights across completeness, timeliness and validity only; consistency and duplicate checks are unmeasured. No causal attribution.",
     }
 
@@ -1214,7 +1325,8 @@ def admin_health(m=Depends(scope), db=Depends(get_db)):
         ),
         "failed_logins_24h": db.scalar(
             select(func.count(Audit.id)).where(
-                Audit.event == "login.failed", Audit.created_at > utc() - timedelta(days=1)
+                Audit.event == "login.failed",
+                Audit.created_at > utc() - timedelta(days=1),
             )
         ),
         "last_successful_backup": None,
@@ -1246,16 +1358,11 @@ def changelog():
 @app.get("/api/aggregate/dashboard")
 def aggregate_dashboard(user=Depends(current_user), db=Depends(get_db)):
     """Aggregate across explicit authorized memberships, never global clinical access."""
-    members = list(
-        db.scalars(
-            select(Membership).where(
-                Membership.user_id == user.id,
-                Membership.role.in_(
-                    ["National Nutrition Administrator", "Regional Nutrition Officer"]
-                ),
-            )
-        )
-    )
+    members = [
+        m
+        for m in authorized_memberships(db, user.id, aggregate_only=True)
+        if m.role in {"National Nutrition Administrator", "Regional Nutrition Officer"}
+    ]
     if not members:
         raise HTTPException(403, "An assigned national or regional aggregate role is required")
     ids = [m.organization_id for m in members]
@@ -1263,7 +1370,8 @@ def aggregate_dashboard(user=Depends(current_user), db=Depends(get_db)):
     reports = list(
         db.scalars(
             select(Report).where(
-                Report.organization_id.in_(ids), Report.state.in_(["Approved", "Locked"])
+                Report.organization_id.in_(ids),
+                Report.state.in_(["Approved", "Locked"]),
             )
         )
     )
@@ -1277,6 +1385,7 @@ def aggregate_dashboard(user=Depends(current_user), db=Depends(get_db)):
                 "region": regions[o.region_id],
                 "region_id": o.region_id,
                 "district_id": o.district_id,
+                "health_district_id": o.health_district_id,
                 "facilities": db.scalar(
                     select(func.count(Facility.id)).where(
                         Facility.organization_id == o.id, Facility.active == True
@@ -1286,10 +1395,10 @@ def aggregate_dashboard(user=Depends(current_user), db=Depends(get_db)):
             }
         )
     return {
-        "scope": "Explicitly assigned organizations only",
+        "scope": "Assigned national / regional health-service scope",
         "organizations": result,
         "regions": len({o.region_id for o in organizations}),
-        "districts": len({o.district_id for o in organizations}),
+        "districts": len({o.health_district_id or o.id for o in organizations}),
         "approved_reports": len(reports),
         "note": "Cross-district clinical records are never included. Comparable national indicator pooling requires standardized indicator identifiers before rollout.",
     }
@@ -1320,7 +1429,8 @@ def facility_profile(id: str, m=Depends(scope), db=Depends(get_db)):
     supervision = list(
         db.scalars(
             scoped_query(OperationalRecord, m).where(
-                OperationalRecord.facility_id == id, OperationalRecord.kind == "supervision"
+                OperationalRecord.facility_id == id,
+                OperationalRecord.kind == "supervision",
             )
         )
     )

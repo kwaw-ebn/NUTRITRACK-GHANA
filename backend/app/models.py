@@ -52,12 +52,31 @@ class District(Identity, Base):
     version: Mapped[str] = mapped_column(String(40))
 
 
+class HealthDistrict(Identity, Base):
+    __tablename__ = "health_districts"
+    __table_args__ = (UniqueConstraint("region_id", "name"),)
+    name: Mapped[str] = mapped_column(String(160))
+    region_id: Mapped[str] = mapped_column(ForeignKey("regions.id"), index=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    source: Mapped[str] = mapped_column(String(200), default="Authorized local entry")
+
+
+class AccessGrant(Identity, Base):
+    __tablename__ = "access_grants"
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    level: Mapped[str] = mapped_column(String(20))
+    region_id: Mapped[str | None] = mapped_column(ForeignKey("regions.id"))
+    role: Mapped[str] = mapped_column(String(50))
+    active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
 class Organization(Identity, Base):
     __tablename__ = "organizations"
     name: Mapped[str] = mapped_column(String(180))
     organization_type: Mapped[str] = mapped_column(String(80))
     region_id: Mapped[str] = mapped_column(ForeignKey("regions.id"))
-    district_id: Mapped[str] = mapped_column(ForeignKey("districts.id"))
+    district_id: Mapped[str | None] = mapped_column(ForeignKey("districts.id"))
+    health_district_id: Mapped[str | None] = mapped_column(ForeignKey("health_districts.id"))
     configuration: Mapped[dict] = mapped_column(JSON, default=dict)
 
 
@@ -76,6 +95,7 @@ class Membership(Identity, Base):
     organization_id: Mapped[str] = mapped_column(ForeignKey("organizations.id"), index=True)
     role: Mapped[str] = mapped_column(String(50))
     facility_id: Mapped[str | None] = mapped_column(ForeignKey("facilities.id"))
+    subdistrict_id: Mapped[str | None] = mapped_column(ForeignKey("subdistricts.id"))
     community_id: Mapped[str | None] = mapped_column(ForeignKey("communities.id"))
 
 
