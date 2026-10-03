@@ -35,6 +35,7 @@ export default function Setup({
     [programmes, setProgrammes] = useState<Row[]>([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
+    [environment, setEnvironment] = useState("staging"),
     [importPreview, setImportPreview] = useState<Row | null>(null);
   const [data, setData] = useState<Row>({
     name: "",
@@ -54,6 +55,7 @@ export default function Setup({
   const update = (key: string, value: any) =>
     setData({ ...data, [key]: value });
   useEffect(() => {
+    api<Row>("/api/public/config").then(c => setEnvironment(c.environment)).catch(() => {});
     Promise.all([
       api<Row[]>("/api/geography/regions"),
       api<Row[]>("/api/programmes"),
@@ -98,6 +100,7 @@ export default function Setup({
   };
   return (
     <div className="setup-page">
+      {environment !== "production" && <div className="environment-banner">{environment.toUpperCase()} ENVIRONMENT · Use fictional data only</div>}
       <header>
         <Brand />
         <button className="text-button" onClick={onBack}>

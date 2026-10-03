@@ -296,6 +296,7 @@ export default function App() {
     [online, setOnline] = useState(navigator.onLine),
     [importResult, setImportResult] = useState<Row | null>(null),
     [roleOptions, setRoleOptions] = useState<Row[]>([]);
+  useEffect(() => { setReportJob(null); }, [selected?.id]);
   const member = me?.memberships.find((m: Row) => m.organization_id === orgId),
     role = member?.role || "",
     isClinical = clinicalRoles.includes(role),
@@ -2444,7 +2445,7 @@ export default function App() {
                       selected.state === "Returned"
                         ? ["Submitted"]
                         : selected.state === "Submitted"
-                          ? ["Verified", "Returned"]
+                          ? (structure?.organization.configuration.approval_workflow || ["Verified"]).includes("Verified") ? ["Verified", "Returned"] : ["Approved", "Returned"]
                           : selected.state === "Verified"
                             ? ["Approved", "Returned"]
                             : selected.state === "Approved"

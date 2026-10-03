@@ -31,6 +31,7 @@ export default function Intelligence({
     [standard, setStandard] = useState(""),
     [selected, setSelected] = useState<Row | null>(null),
     [team, setTeam] = useState<Row[]>([]),
+    [facilities, setFacilities] = useState<Row[]>([]),
     [notice, setNotice] = useState("");
   const load = () => {
     const p = new URLSearchParams({ period });
@@ -198,7 +199,11 @@ export default function Intelligence({
                             disabled={!!r.action_id}
                             onClick={async () => {
                               setSelected(r);
-                              setTeam(await api("/api/users"));
+                              try {
+                                const [users, structure] = await Promise.all([api<Row[]>("/api/users"), api<Row>("/api/structure")]);
+                                setTeam(users);
+                                setFacilities(structure.facilities);
+                              } catch (e) { setError((e as Error).message); }
                             }}
                           >
                             Assign action
@@ -221,6 +226,7 @@ export default function Intelligence({
               onSubmit={async (d) => {
                 await post("/api/signals/actions", {
                   ...d,
+                  facility_id: d.facility_id || null,
                   indicator_id: selected.indicator_id,
                   period: selected.period,
                 });
@@ -241,6 +247,9 @@ export default function Intelligence({
                   minLength={10}
                   defaultValue={selected.explanation}
                 />
+              </Field>
+              <Field label="Facility for this action (optional)">
+                <select name="facility_id"><option value="">District-wide action</option>{facilities.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}</select>
               </Field>
               <Field label="Responsible officer">
                 <Select name="assigned_to" options={team} />

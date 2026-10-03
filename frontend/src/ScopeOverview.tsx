@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Intelligence from "./Intelligence";
+import MasterDataAdmin from "./MasterDataAdmin";
 import RegistryAdmin from "./RegistryAdmin";
 import { Brand, type Row } from "./components";
 export default function ScopeOverview({
@@ -47,7 +48,7 @@ export default function ScopeOverview({
         <div className="admin-tabs">
           {[
             "Nutrition situation",
-            ...(national ? ["Programmes", "Indicator standards"] : []),
+            ...(national ? ["Programmes", "Indicator standards", "Master data"] : []),
           ].map((t) => (
             <button
               key={t}
@@ -60,7 +61,7 @@ export default function ScopeOverview({
         </div>
         {tab === "Nutrition situation" ? (
           <Intelligence onOpenOrganization={onOpenOrganization} />
-        ) : (
+        ) : tab === "Master data" ? <MasterDataAdmin /> : (
           <RegistryAdmin
             section={tab as "Programmes" | "Indicator standards"}
           />

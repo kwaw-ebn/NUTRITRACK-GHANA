@@ -455,7 +455,7 @@ def install(app):
         return [core.serialize(p) for p in db.scalars(select(Programme).order_by(Programme.name))]
 
     @app.get("/api/platform/master-data")
-    def masters(owner=Depends(core.platform_user), db=Depends(get_db)):
+    def masters(owner=Depends(core.national_admin), db=Depends(get_db)):
         return {
             "regions": [
                 core.serialize(r) for r in db.scalars(select(Region).order_by(Region.name))
@@ -472,7 +472,7 @@ def install(app):
 
     @app.put("/api/platform/master-data/regions/{id}")
     def region_change(
-        id: str, data: RegionChange, owner=Depends(core.platform_user), db=Depends(get_db)
+        id: str, data: RegionChange, owner=Depends(core.national_admin), db=Depends(get_db)
     ):
         row = db.get(Region, id)
         if not row:
@@ -505,7 +505,7 @@ def install(app):
 
     @app.patch("/api/platform/master-data/health-districts/{id}/status")
     def district_status(
-        id: str, data: LocalStatus, owner=Depends(core.platform_user), db=Depends(get_db)
+        id: str, data: LocalStatus, owner=Depends(core.national_admin), db=Depends(get_db)
     ):
         row = db.get(HealthDistrict, id)
         if not row:

@@ -305,11 +305,10 @@ export default function OrganizationAdmin({
                   .split(",")
                   .map((v: string) => v.trim())
                   .filter(Boolean),
-                quality_weights: c.quality_weights || {
-                  Completeness: 1,
-                  Timeliness: 1,
-                  Validity: 1,
-                },
+                quality_weights: JSON.parse(d.quality_weights),
+                approval_workflow: d.approval_workflow === "verified"
+                  ? ["Draft", "Submitted", "Verified", "Approved", "Locked"]
+                  : ["Draft", "Submitted", "Approved", "Locked"],
                 report_deadline_day: Number(d.report_deadline_day),
                 deterioration_threshold_pp: Number(
                   d.deterioration_threshold_pp,
@@ -332,6 +331,15 @@ export default function OrganizationAdmin({
               required
               defaultValue={JSON.stringify(c.programmes)}
             />
+          </Field>
+          <Field label="Data quality component weights" hint="JSON weights: Completeness, Timeliness, Validity; optionally Consistency and Duplicate rate.">
+            <textarea name="quality_weights" required defaultValue={JSON.stringify(c.quality_weights || { Completeness: 1, Timeliness: 1, Validity: 1 })} />
+          </Field>
+          <Field label="Report approval workflow">
+            <select name="approval_workflow" defaultValue={(c.approval_workflow || ["Verified"]).includes("Verified") ? "verified" : "direct"}>
+              <option value="verified">Submit → Verify → Approve → Lock</option>
+              <option value="direct">Submit → Approve → Lock</option>
+            </select>
           </Field>
           <Field label="Facility types">
             <input
