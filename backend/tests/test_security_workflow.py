@@ -617,3 +617,45 @@ def test_health_hierarchy_and_inherited_area_access(client):
         m["role"] == "District Nutrition Officer"
         for m in client.get("/api/auth/me", headers=h).json()["memberships"]
     )
+
+
+def test_platform_owner_without_location_and_scoped_clinical_access(client, monkeypatch):
+    from app.config import settings
+
+    monkeypatch.setattr(settings(), "main_admin_email", "owner@example.org")
+    payload = {
+        "name": "Platform Owner",
+        "email": "owner@example.org",
+        "password": "StrongOwnerPassword123!",
+    }
+    assert client.get("/api/public/config").json()["main_admin_setup_available"] is True
+    assert client.post("/api/platform/setup", json=payload).status_code == 403
+    setup_header = {"X-Setup-Token": os.environ["SETUP_TOKEN"]}
+    assert (
+        client.post(
+            "/api/platform/setup",
+            headers=setup_header,
+            json={**payload, "email": "outsider@example.org"},
+        ).status_code
+        == 403
+    )
+    response = client.post("/api/platform/setup", headers=setup_header, json=payload)
+    assert response.status_code == 201, response.text
+    owner = {"Authorization": "Bearer " + response.json()["access_token"]}
+    me = client.get("/api/auth/me", headers=owner).json()
+    assert me["platform_admin"] is True
+    assert me["memberships"] == []
+    overview = client.get("/api/platform/dashboard", headers=owner)
+    assert overview.status_code == 200, overview.text
+    assert len(overview.json()["regions"]) == 16
+    assert overview.json()["organizations"] == []
+    assert overview.json()["clinical_access"] is False
+    assert client.post("/api/platform/setup", headers=setup_header, json=payload).status_code == 409
+    assert client.get("/api/public/config").json()["main_admin_setup_available"] is False
+    district, _, _ = setup(client, "Fictional District", "district@example.org")
+    assert client.get("/api/platform/dashboard", headers=district).status_code == 403
+    assert len(client.get("/api/platform/dashboard", headers=owner).json()["organizations"]) == 1
+    me = client.get("/api/auth/me", headers=owner).json()
+    owner["X-Organization-ID"] = me["memberships"][0]["organization_id"]
+    assert client.get("/api/dashboard", headers=owner).status_code == 200
+    assert client.get("/api/clients", headers=owner).status_code == 403

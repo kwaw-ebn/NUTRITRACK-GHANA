@@ -64,3 +64,13 @@ Tests exercise geography counts and region filtering, setup, tenant/role restric
 Directories: `frontend/`, `backend/`, `docs/`, `scripts/`. Backend `.env.example` contains secret variable names only. Frontend environment contains only the public API origin.
 
 The directory seed is a versioned government-source snapshot. Government pages disagree on some classifications; retrieval date is not an effective date. Verify the current gazetted names/types with a competent authority before production. No administrative code is invented. Official national directory updates use versioned imports, retaining existing historical records.
+
+### Main administrator bootstrap
+Set backend `MAIN_ADMIN_EMAIL` to the platform owner's email. On the sign-in page,
+choose **Create main administrator account**, provide that email, a new password
+(at least 12 characters), and the authorized `SETUP_TOKEN`. No region or district
+is required. Only one platform owner can be bootstrapped; the backend enforces
+the email whitelist, token and a database uniqueness constraint. The owner opens
+national oversight, can optionally filter regions, and can open organization
+aggregate dashboards. Confidential client records still require an explicit
+clinical membership. District organization setup remains a separate workflow.

@@ -1,5 +1,11 @@
 import { test, expect } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  waitFor,
+  within,
+  cleanup,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "./App";
 
@@ -96,4 +102,45 @@ test("Onboard a fictional district and save/deactivate a facility through the UI
     expect(within(updated).getByText("Inactive")).toBeInTheDocument();
   });
   expect(localStorage.length).toBe(0);
+});
+
+test("Main owner registers without a location and opens national oversight", async () => {
+  cleanup();
+  const user = userEvent.setup();
+  render(<App />);
+  await user.click(
+    await screen.findByRole("button", {
+      name: "Create main administrator account",
+    }),
+  );
+  expect(screen.queryByLabelText("Region")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("Health district")).not.toBeInTheDocument();
+  await user.type(
+    screen.getByLabelText("Your name"),
+    "Fictional Platform Owner",
+  );
+  await user.type(screen.getByLabelText("Owner email"), "owner-ui@example.org");
+  await user.type(
+    screen.getByLabelText("Secure password"),
+    "FictionalOwnerPassword123!",
+  );
+  await user.type(
+    screen.getByLabelText("Authorized setup token"),
+    "ui-test-onboarding-token-1234567890",
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Create main administrator account" }),
+  );
+  await screen.findByRole("heading", { name: "National administration" });
+  await screen.findByRole("heading", { name: "National overview" });
+  expect(
+    screen.getByRole("option", { name: "All Ghana — all regions" }),
+  ).toBeInTheDocument();
+  expect(screen.getByText("Fictional UI Test Directorate")).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Open dashboard" }));
+  await screen.findByRole("button", { name: "National administration" });
+  await user.click(
+    screen.getByRole("button", { name: "National administration" }),
+  );
+  await screen.findByRole("heading", { name: "National overview" });
 });

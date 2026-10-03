@@ -71,6 +71,12 @@ class Setup(Strict):
     contact: str = Field(default="", max_length=200)
 
 
+class MainAdminSetup(Strict):
+    name: str = Field(min_length=2, max_length=120)
+    email: EmailStr
+    password: str = Field(min_length=12, max_length=128)
+
+
 class UserIn(Strict):
     name: str = Field(min_length=2, max_length=120)
     email: EmailStr

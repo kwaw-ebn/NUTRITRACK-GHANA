@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./nutritrack.db"
     jwt_secret: str = "development-only-change-this-secret-32-characters"
     setup_token: str = ""
+    main_admin_email: str = ""
     environment: str = "development"
     cors_origins: str = "http://localhost:5173"
     access_minutes: int = Field(default=15, ge=1, le=60)

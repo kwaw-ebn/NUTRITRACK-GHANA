@@ -42,6 +42,7 @@ jobs:
           npm run test
         env:
           DATABASE_URL: sqlite:////tmp/nutritrack-ui-test.db
+          MAIN_ADMIN_EMAIL: owner-ui@example.org
           SETUP_TOKEN: ui-test-onboarding-token-1234567890
           ENVIRONMENT: development
   postgres:

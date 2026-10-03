@@ -64,6 +64,7 @@ import {
   type Row,
 } from "./components";
 import Setup from "./Setup";
+import PlatformAdmin, { MainAdminSetup } from "./PlatformAdmin";
 const programmeLabels: Record<string, string> = {
   growth: "Child Growth Monitoring",
   iycf: "IYCF",
@@ -91,9 +92,11 @@ const dateToday = () => new Date().toISOString().slice(0, 10);
 function Auth({
   onSignIn,
   onSetup,
+  onMainSetup,
 }: {
   onSignIn: () => void;
   onSetup: () => void;
+  onMainSetup?: () => void;
 }) {
   const [reset, setReset] = useState(
       new URLSearchParams(location.search).get("reset") || "",
@@ -235,6 +238,11 @@ function Auth({
             Set up your organization
             <ArrowUpRight size={17} />
           </button>
+          {onMainSetup && (
+            <button className="secondary full" onClick={onMainSetup}>
+              Create main administrator account
+            </button>
+          )}
           <div className="auth-trust">
             <ShieldCheck size={16} />
             Organization-scoped access. No public client registration.
@@ -249,6 +257,8 @@ export default function App() {
   const [config, setConfig] = useState<Row>({ environment: "development" }),
     [me, setMe] = useState<Row | null>(null),
     [setup, setSetup] = useState(false),
+    [mainSetup, setMainSetup] = useState(false),
+    [organizationView, setOrganizationView] = useState(false),
     [orgId, setOrgId] = useState(""),
     [page, setPage] = useState("Overview"),
     [structure, setStructure] = useState<Row>({
@@ -298,10 +308,12 @@ export default function App() {
     try {
       const r = await api<Row>("/api/auth/me");
       setMe(r);
-      const id = r.memberships[0]?.organization_id;
+      const id = r.memberships[0]?.organization_id || "";
       setOrganization(id);
       setOrgId(id);
       setSetup(false);
+      setMainSetup(false);
+      setOrganizationView(false);
     } catch (e) {
       setError((e as Error).message);
     }
@@ -422,6 +434,10 @@ export default function App() {
     Users: "Least-privilege access for your district team.",
     Settings: "Your organization identity and programme configuration.",
   };
+  if (mainSetup)
+    return (
+      <MainAdminSetup onComplete={login} onBack={() => setMainSetup(false)} />
+    );
   if (setup) return <Setup onComplete={login} onBack={() => setSetup(false)} />;
   if (!me)
     return (
@@ -433,8 +449,36 @@ export default function App() {
           </div>
         )}
         {error && <div className="global-error">{error}</div>}
-        <Auth onSignIn={login} onSetup={() => setSetup(true)} />
+        <Auth
+          onSignIn={login}
+          onSetup={() => setSetup(true)}
+          onMainSetup={
+            config.main_admin_setup_available
+              ? () => setMainSetup(true)
+              : undefined
+          }
+        />
       </>
+    );
+  if (me.platform_admin && !organizationView)
+    return (
+      <PlatformAdmin
+        environment={config.environment}
+        onSignOut={async () => {
+          await signOut();
+          setMe(null);
+          setOrgId("");
+          api("/api/public/config").then(setConfig);
+        }}
+        onOpenOrganization={async (id) => {
+          setMe(await api("/api/auth/me"));
+          setOrganization(id);
+          setOrgId(id);
+          setDash(null);
+          setPage("Overview");
+          setOrganizationView(true);
+        }}
+      />
     );
   const nav = [
     {
@@ -538,6 +582,14 @@ export default function App() {
             <X />
           </button>
         </div>
+        {me.platform_admin && (
+          <button
+            className="secondary"
+            onClick={() => setOrganizationView(false)}
+          >
+            National administration
+          </button>
+        )}
         <div className="workspace-switch">
           <small>ORGANIZATION WORKSPACE</small>
           <select
@@ -559,7 +611,10 @@ export default function App() {
           </select>
           <span>
             <span className="live-dot" />
-            {(member?.access_level || "HEALTH_DISTRICT").replaceAll("_", " ").toLowerCase()} access
+            {(member?.access_level || "HEALTH_DISTRICT")
+              .replaceAll("_", " ")
+              .toLowerCase()}{" "}
+            access
           </span>
         </div>
         <nav>
@@ -2570,7 +2625,11 @@ export default function App() {
                 </select>
               </Field>
               <Field label="Health sub-district scope (optional)">
-                <Select name="subdistrict_id" options={structure.subdistricts} required={false} />
+                <Select
+                  name="subdistrict_id"
+                  options={structure.subdistricts}
+                  required={false}
+                />
               </Field>
               <Field label="Facility scope">
                 <Select

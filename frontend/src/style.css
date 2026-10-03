@@ -1888,3 +1888,13 @@ code {
     min-width: 130px;
   }
 }
+.platform-admin main {
+  max-width: 1200px;
+}
+.platform-admin .panel {
+  margin-top: 24px;
+  padding: 24px;
+}
+.platform-admin header {
+  gap: 20px;
+}

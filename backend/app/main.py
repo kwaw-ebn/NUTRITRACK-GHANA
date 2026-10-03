@@ -170,11 +170,13 @@ def health(db=Depends(get_db)):
 
 
 @app.get("/api/public/config")
-def public_config():
+def public_config(db=Depends(get_db)):
     return {
         "environment": settings().environment,
         "version": settings().app_version,
         "country": "Ghana",
+        "main_admin_setup_available": bool(settings().main_admin_email)
+        and not db.scalar(select(AccessGrant.id).where(AccessGrant.level == "PLATFORM")),
     }
 
 
@@ -262,6 +264,7 @@ def me(user=Depends(current_user), db=Depends(get_db)):
     memberships = authorized_memberships(db, user.id)
     return {
         "user": serialize(user),
+        "platform_admin": is_platform_admin(db, user.id),
         "memberships": [
             dict(
                 id=m.id,
@@ -1454,3 +1457,115 @@ def facility_profile(id: str, m=Depends(scope), db=Depends(get_db)):
         "last_supervision": max([r.details.get("date", "") for r in supervision], default=None),
         "programme_coverage": f.programmes or org(db, m).configuration.get("programmes", []),
     }
+
+
+def is_platform_admin(db, user_id):
+    return bool(
+        db.scalar(
+            select(AccessGrant.id).where(
+                AccessGrant.user_id == user_id,
+                AccessGrant.level == "PLATFORM",
+                AccessGrant.role == "System Administrator",
+                AccessGrant.active == True,
+            )
+        )
+    )
+
+
+def platform_user(user=Depends(current_user), db=Depends(get_db)):
+    if not is_platform_admin(db, user.id):
+        raise HTTPException(403, "Main administrator access is required")
+    return user
+
+
+@app.post("/api/platform/setup", status_code=201)
+def setup_platform(
+    data: MainAdminSetup,
+    request: Request,
+    setup_token: str = Header(default="", alias="X-Setup-Token"),
+    db=Depends(get_db),
+):
+    limit(request, "platform-setup", 5)
+    if (
+        not settings().main_admin_email
+        or not settings().setup_token
+        or not secrets.compare_digest(setup_token, settings().setup_token)
+        or data.email.lower() != settings().main_admin_email.lower()
+    ):
+        raise HTTPException(
+            403, "The configured owner email and authorized setup token are required"
+        )
+    if db.scalar(select(AccessGrant.id).where(AccessGrant.level == "PLATFORM")):
+        raise HTTPException(409, "Main administrator setup is already complete")
+    if db.scalar(select(User.id).where(User.email == data.email.lower())):
+        raise HTTPException(
+            409, "An account already uses this email; use reviewed operator provisioning"
+        )
+    user = User(
+        name=data.name, email=data.email.lower(), password_hash=passwords.hash(data.password)
+    )
+    db.add(user)
+    db.flush()
+    db.add_all(
+        [
+            AccessGrant(user_id=user.id, level="PLATFORM", role="System Administrator"),
+            AccessGrant(user_id=user.id, level="NATIONAL", role="National Nutrition Administrator"),
+            Audit(
+                actor_id=user.id,
+                event="platform.owner_created",
+                entity_id=user.id,
+                details={"scope": "Platform administration and national aggregate oversight"},
+            ),
+        ]
+    )
+    result = tokens(db, user)
+    db.commit()
+    return result
+
+
+@app.get("/api/platform/dashboard")
+def platform_dashboard(user=Depends(platform_user), db=Depends(get_db)):
+    regions = {r.id: r.name for r in db.scalars(select(Region))}
+    health_districts = {d.id: d.name for d in db.scalars(select(HealthDistrict))}
+    organizations = []
+    for o in db.scalars(select(Organization).order_by(Organization.name)):
+        organizations.append(
+            dict(
+                id=o.id,
+                name=o.name,
+                region_id=o.region_id,
+                region=regions.get(o.region_id),
+                health_district=health_districts.get(o.health_district_id),
+                facilities=db.scalar(
+                    select(func.count(Facility.id)).where(Facility.organization_id == o.id)
+                ),
+                approved_reports=db.scalar(
+                    select(func.count(Report.id)).where(
+                        Report.organization_id == o.id, Report.state.in_(["Approved", "Locked"])
+                    )
+                ),
+            )
+        )
+    return dict(
+        regions=[dict(id=k, name=v) for k, v in regions.items()],
+        organizations=organizations,
+        users=[
+            dict(id=u.id, name=u.name, email=u.email, active=u.active)
+            for u in db.scalars(select(User).order_by(User.name))
+        ],
+        audit=[
+            dict(id=a.id, event=a.event, organization_id=a.organization_id, created_at=a.created_at)
+            for a in db.scalars(select(Audit).order_by(Audit.created_at.desc()).limit(100))
+        ],
+        health=dict(
+            database="connected",
+            version=settings().app_version,
+            migration=(
+                db.execute(text("SELECT version_num FROM alembic_version")).scalar()
+                if db.bind.dialect.name != "sqlite"
+                else "test/development schema"
+            ),
+        ),
+        scope="National platform oversight",
+        clinical_access=False,
+    )

@@ -4,6 +4,8 @@ from sqlalchemy import (
     String,
     ForeignKey,
     UniqueConstraint,
+    Index,
+    text,
     Boolean,
     JSON,
     DateTime,
@@ -63,6 +65,15 @@ class HealthDistrict(Identity, Base):
 
 class AccessGrant(Identity, Base):
     __tablename__ = "access_grants"
+    __table_args__ = (
+        Index(
+            "uq_single_platform_owner",
+            "level",
+            unique=True,
+            postgresql_where=text("level = 'PLATFORM'"),
+            sqlite_where=text("level = 'PLATFORM'"),
+        ),
+    )
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
     level: Mapped[str] = mapped_column(String(20))
     region_id: Mapped[str | None] = mapped_column(ForeignKey("regions.id"))
