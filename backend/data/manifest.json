@@ -1,0 +1,38 @@
+{
+  "version": "government-snapshot-2026-10-03-v1",
+  "retrieved_at": "2026-10-03",
+  "source_publication_date": null,
+  "expected_count": 261,
+  "sources": [
+    "https://imccod.gov.gh/districts/",
+    "https://imccod.gov.gh/municipalities/",
+    "https://imccod.gov.gh/metropolitans/",
+    "https://mofep.gov.gh/sites/default/files/composite-budget/2026/CR/Assin_North.pdf",
+    "https://mofep.gov.gh/publications/composite-budget-2025/ne"
+  ],
+  "counts_by_region": {
+    "Ahafo": 6,
+    "Ashanti": 43,
+    "Bono": 12,
+    "Bono East": 11,
+    "Central": 22,
+    "Eastern": 33,
+    "Greater Accra": 29,
+    "North East": 6,
+    "Northern": 16,
+    "Oti": 9,
+    "Savannah": 7,
+    "Upper East": 15,
+    "Upper West": 11,
+    "Volta": 18,
+    "Western": 14,
+    "Western North": 9
+  },
+  "assembly_types": {
+    "DISTRICT": 148,
+    "MUNICIPAL": 107,
+    "METROPOLITAN": 6
+  },
+  "status": "Government source snapshot; requires competent-authority review before production. Source publication/effective dates are not supplied. Some classifications conflict with other government pages. See docs/MASTER_DATA.md.",
+  "administrative_codes": "Unavailable; source serial numbers and internal region codes are not official administrative codes."
+}

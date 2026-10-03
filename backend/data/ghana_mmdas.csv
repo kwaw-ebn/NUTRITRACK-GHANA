@@ -1,0 +1,262 @@
+uuid,name,region,assembly_type,administrative_code,capital,active,effective_from,effective_to,source,version,source_serial,source_name
+d69a3bda-b8b2-518a-8252-954416155efb,Asunafo South District,Ahafo,DISTRICT,,Kukuom,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,1,ASUNAFO SOUTH
+9b11b219-568d-5117-9327-36ab0817dbfb,Asunafo North Municipal,Ahafo,MUNICIPAL,,Goaso,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,2,ASUNAFO NORTH
+b63c5463-7c5a-523c-8273-a835c0368ded,Asutifi South District,Ahafo,DISTRICT,,Hwidiem,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,3,ASUTIFI SOUTH
+4d879d46-4c4d-547d-9f2b-3652daddd65c,Asutifi North District,Ahafo,DISTRICT,,Kenyasi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,4,ASUTIFI NORTH
+9b41dc4e-9956-56ba-b144-ad10294fc65f,Tano South Municipal,Ahafo,MUNICIPAL,,Bechem,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,5,TANO SOUTH
+2312a177-7ba0-5b7d-831c-71a36b1fdc51,Tano North Municipal,Ahafo,MUNICIPAL,,Duayaw Nkwanta,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,6,TANO NORTH
+ede75ee5-6e18-56a6-84ed-4fc9e990c67f,Adansi South District,Ashanti,DISTRICT,,New Edubiase,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,7,ADANSI SOUTH
+6a5174f6-2564-5efb-b9ed-a25c1bdbfb5a,Adansi North District,Ashanti,DISTRICT,,Fomena,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,8,ADANSI NORTH
+13f64b56-1a81-59b0-897a-1ddf41467c53,Adansi Asokwa District,Ashanti,DISTRICT,,Adansi Asokwa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,9,ADANSI ASOKWA
+665ca572-3f5c-59b5-bc2f-4781db93c2bd,Bekwai Municipal,Ashanti,MUNICIPAL,,Bekwai,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,10,BEKWAI
+c3f3afea-d903-5aa3-ab4a-d20016a2ff0e,Akrofuom District,Ashanti,DISTRICT,,Akrofuom,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,11,AKROFUOM
+b5255313-eb85-5a4e-8d74-4fe6cdb5cacb,Obuasi Municipal,Ashanti,MUNICIPAL,,Obuasi,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,12,OBUASI
+7dd6a900-7aa8-5d16-a29f-83a392a3bf80,Obuasi East District,Ashanti,DISTRICT,,Tutuka,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,13,OBUASI EAST
+4ae00919-c308-5d08-8e0a-4aa40a59274a,Amansie Central District,Ashanti,DISTRICT,,Jacobu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,14,AMANSIE CENTRAL
+60a4a313-7f33-59da-9d44-64a30708c700,Amansie West District,Ashanti,DISTRICT,,Manso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,15,AMANSIE WEST
+f48a8e73-5e66-555e-b8ce-fd092552fd71,Amansie South District,Ashanti,DISTRICT,,Edubia,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,16,AMANSIE SOUTH
+53d6396f-2788-512e-96ba-67474b6db0f0,Ahafo Ano Southwest District,Ashanti,DISTRICT,,Mankraso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,17,AHAFO ANO SOUTHWEST
+077a4a64-a9cd-5d1f-8409-71b3484507e9,Ahafo Ano Southeast District,Ashanti,DISTRICT,,Adugyma,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,18,AHAFO ANO SOUTHEAST
+7c240ba1-7281-5520-9ff7-ff203219a8b2,Ahafo Ano North Municipal,Ashanti,MUNICIPAL,,Tepa,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,19,AHAFO ANO NORTH
+ee11fa40-970b-5bec-a52d-c3443a00124c,Atwima Mponua District,Ashanti,DISTRICT,,Nyinahin,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,20,ATWIMA MPONUA
+2bf880c7-8b85-5f59-a8e1-7d75693c9868,Atwima Nwabiagya South Municipal,Ashanti,MUNICIPAL,,Nkwie,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,21,ATWIMA NWABIAGYA SOUTH
+4c40c403-f105-5f2c-8aa3-44e996934eaa,Atwima Kwanwoma District,Ashanti,DISTRICT,,Twedie,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,22,ATWIMA KWANWOMA
+bbcf746d-4e4d-55d4-a5b9-8295b4c539a2,Atwima Nwabiagya North District,Ashanti,DISTRICT,,Barekese,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,23,ATWIMA NWABIAGYA NORTH
+d3720a0b-3333-579c-87bf-2fcd5fbcdcf1,Kumasi Metropolitan,Ashanti,METROPOLITAN,,Kumasi,true,,,https://imccod.gov.gh/metropolitans/,government-snapshot-2026-10-03-v1,24,KUMASI
+b3212b2c-bde1-5ab8-8288-042b5aa9bded,Kwadaso Municipal,Ashanti,MUNICIPAL,,Kwadaso,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,25,KWADASO
+75165a13-aa76-535c-b359-ca8abe93eeb2,Tafo Municipal,Ashanti,MUNICIPAL,,Old Tafo,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,26,TAFO
+02f7fd14-ee29-5e41-b220-3400c6af822b,Suame Municipal,Ashanti,MUNICIPAL,,Suame,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,27,SUAME
+1fb84a16-00a8-573b-91d5-79af9fc1ff64,Bosomtwe District,Ashanti,DISTRICT,,Kuntenase,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,28,BOSOMTWE
+8d70ef3d-e11a-57e9-aa88-fd6a12ca95cb,Asokwa Municipal,Ashanti,MUNICIPAL,,Asokwa,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,29,ASOKWA
+8b62a92c-d0dd-5c0c-83f1-5b71c2255da0,Oforikrom Municipal,Ashanti,MUNICIPAL,,Oforikrom,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,30,OFORIKROM
+298a054f-f8ea-59e2-b29e-3a0f5285dd1d,Asokore Mampong Municipal,Ashanti,MUNICIPAL,,Asokore,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,31,ASOKORE MAMPONG
+a1e0071f-8a5f-548e-9ea7-88817c1d5a5f,Kwabre East Municipal,Ashanti,MUNICIPAL,,Mamponteng,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,32,KWABRE EAST
+088d1d95-5d12-5d9d-a903-0d487eb1a6fa,Juaben Municipal,Ashanti,MUNICIPAL,,Juaben,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,33,JUABEN
+0f61ea0d-b56e-59b7-a978-472ec0e2127d,Ejisu Municipal,Ashanti,MUNICIPAL,,Ejisu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,34,EJISU
+787dc8a6-c6bf-563f-8edf-6a6696997a22,Sekyere-East District,Ashanti,DISTRICT,,Efiduase,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,35,SEKYERE-EAST
+71be3f42-067b-527b-a69e-c1ffed3ba68d,Sekyere Kumawu District,Ashanti,DISTRICT,,Kumawu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,36,SEKYERE KUMAWU
+988b9452-3120-5ae0-b5a0-38641ff4b389,Sekyere Afram Plains District,Ashanti,DISTRICT,,Drobonso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,37,SEKYERE AFRAM PLAINS
+71968214-7f41-5791-b649-f96d2d90f79f,Sekyere Central District,Ashanti,DISTRICT,,Nsuta,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,38,SEKYERE CENTRAL
+40c6bca7-6afb-59e7-850e-a270c87ffb77,Sekyere South District,Ashanti,DISTRICT,,Agona,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,39,SEKYERE SOUTH
+f1e9b85f-ea75-5b85-baa0-763b15606ee7,Asante Akim South Municipal,Ashanti,MUNICIPAL,,Juaso,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,40,ASANTE AKIM SOUTH
+433d8684-36ce-5e8f-b77a-7da9220eccbb,Asante Akim Central Municipal,Ashanti,MUNICIPAL,,Konongo,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,41,ASANTE AKIM CENTRAL
+fc630cbc-548c-51ca-86b3-28fcd6af2a35,Asante Akim North District,Ashanti,DISTRICT,,Agogo,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,42,ASANTE AKIM NORTH
+84b74b30-5ff4-5bce-b5c2-6518068db768,Bosome Freho District,Ashanti,DISTRICT,,Asiwa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,43,BOSOME FREHO
+50cf3a36-2cd1-5559-8261-3707847b7cc0,Mampong Municipal,Ashanti,MUNICIPAL,,Mampong,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,44,MAMPONG MUNICPAL
+4f69ca38-63b7-5c81-9027-0ce30e41fd9d,Ejura Sekyedumase Municipal,Ashanti,MUNICIPAL,,Ejura,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,45,EJURA SEKYEDUMASE
+a0846c84-0f0b-5f65-a2b2-90caf66db93a,Afigya Kwabre South District,Ashanti,DISTRICT,,Kodie,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,46,AFIGYA KWABRE SOUTH
+a6b9df76-8890-5145-b7ef-37bb78904415,Afigya Kwabre North District,Ashanti,DISTRICT,,Boamang,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,47,AFIGYA KWABRE NORTH
+efb9f6f7-9e69-5b2c-bace-39c62db5baea,Offinso Municipal,Ashanti,MUNICIPAL,,Offinso,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,48,OFFINSO
+6c038673-1585-58c2-b7d4-1804cec412bf,Offinso North District,Ashanti,DISTRICT,,Akomadan,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,49,OFFINSO NORTH
+5df1b764-8e09-5b0c-8c7f-bbe76b0c38af,Sunyani East Municipal,Bono,MUNICIPAL,,Sunyani,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,50,SUNYANI EAST
+7b25211e-9dac-59d2-b0bc-94c5a4eaa2c8,Sunyani West District,Bono,DISTRICT,,Odumasi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,51,SUNYANI WEST
+664d6ba6-86cd-5747-987c-c6375855eefd,Berekum East Municipal,Bono,MUNICIPAL,,Berekum,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,52,BEREKUM EAST
+f682194e-0374-54f4-aff7-4f598d860309,Berekum West District,Bono,DISTRICT,,Jinijini,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,53,BEREKUM WEST
+5e8be30e-1f53-5a5b-b031-97ed67e2fad9,Dormaa West District,Bono,DISTRICT,,Nkran Nkwanta,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,54,DORMAA WEST
+94e86743-4aed-5ec6-9b3a-5524a283b320,Dormaa Central Municipal,Bono,MUNICIPAL,,Dormaa Ahenkro,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,55,DORMAA CENTRAL
+feeedaf7-759c-5672-a690-5e4c976e55a3,Dormaa East District,Bono,DISTRICT,,Wamfie,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,56,DORMAA EAST
+5f70c05a-b70c-5ccb-9f3b-7d8f60a0199d,Jaman South Municipal,Bono,MUNICIPAL,,Drobo,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,57,JAMAN SOUTH
+abc5daf4-6d05-5da9-bcda-c32b09964104,Jaman North District,Bono,DISTRICT,,Sampa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,58,JAMAN NORTH
+3136fa6b-68ac-5a84-bd4e-f7a0bf64323e,Banda District,Bono,DISTRICT,,Banda Ahenkro,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,59,BANDA
+e3e36282-c289-53ce-8112-c1cf7150978f,Tain District,Bono,DISTRICT,,Nsawkaw,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,60,TAIN
+d8ff4e25-243d-54c7-9710-3bcd781f8e3f,Wenchi Municipal,Bono,MUNICIPAL,,Wenchi,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,61,WENCHI
+bbbf3826-6f0b-5ae8-bd7e-adffd2a03478,Techiman Municipal,Bono East,MUNICIPAL,,Techiman,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,62,TECHIMAN
+1958b2f2-b60c-5f6a-aaf1-714d4a1b7f8c,Techiman North District,Bono East,DISTRICT,,Tuobodom,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,63,TECHIMAN NORTH
+3cb66844-5dfb-5184-99d6-0fe3f7b2bf9b,Kintampo North Municipal,Bono East,MUNICIPAL,,Kintampo,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,64,KINTAMPO NORTH
+81767e67-171a-560a-9753-4d32ba9260fd,Kintampo South District,Bono East,DISTRICT,,Jema,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,65,KINTAMPO SOUTH
+824c1440-0580-5692-a5fe-7d72188a3eb1,Nkoranza North District,Bono East,DISTRICT,,Busunya,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,66,NKORANZA NORTH
+08a25dc6-aac6-5088-82a9-7d9a6facc798,Nkoranza South Municipal,Bono East,MUNICIPAL,,Nkoranza,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,67,NKORANZA SOUTH
+4184107d-2a95-592e-8d88-d407fe8322b0,Atebubu-Amantin Municipal,Bono East,MUNICIPAL,,Atebubu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,68,ATEBUBU-AMANTIN
+239459ba-fe31-543d-95ff-71b53a2c7278,Pru West District,Bono East,DISTRICT,,Prang,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,69,PRU WEST
+eeac84c6-fb2f-5361-a69e-878f115c1303,Pru East District,Bono East,DISTRICT,,Yeji,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,70,PRU EAST
+84d0277d-eee2-5bf5-89ff-a24afda03333,Sene West District,Bono East,DISTRICT,,Kwame Dansu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,71,SENE WEST
+7a3ab9e2-9f62-5157-a026-b0debd063b7c,Sene East District,Bono East,DISTRICT,,Kajaji,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,72,SENE EAST
+486eedad-45b9-5ed8-a3cf-14469339e216,Komenda Edina Eguafo Abrem Municipal,Central,MUNICIPAL,,Elmina,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,73,KOMENDA EDINA EGUAFO ABREM
+1079c340-e1ad-5334-b854-397bd13fed0d,Cape Coast Metropolitan,Central,METROPOLITAN,,Cape Coast,true,,,https://imccod.gov.gh/metropolitans/,government-snapshot-2026-10-03-v1,74,CAPE COAST
+db00067f-8b01-5265-890c-a3515cd05e58,Mfantsiman Municipal,Central,MUNICIPAL,,Saltpong,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,75,MFANTSIMAN
+4b398854-db39-5791-b5d7-a89c1da09a6e,Ekumfi District,Central,DISTRICT,,Essarkyir,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,76,EKUMFI
+ec5764c3-ddca-5d7a-a225-33e384b51696,Ajumako-Enyan-Esiam District,Central,DISTRICT,,Ajumako,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,77,AJUMAKO-ENYAN-ESIAM
+bec8acd8-7e8c-52ba-9e8c-89e08f371cc2,Gomoa West District,Central,DISTRICT,,Apam,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,78,GOMOA WEST
+950a9a29-9dd5-5e53-9e08-2cf0eaaf2610,Gomoa Central District,Central,DISTRICT,,Afransi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,79,GOMOA CENTRAL
+3450d541-b838-545c-914d-20221b3b6914,Gomoa East District,Central,DISTRICT,,Potsin,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,80,GOMOA EAST
+3e05fd2c-78d7-5ee1-9057-668155982988,Effutu Municipal,Central,MUNICIPAL,,Winneba,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,81,EFFUTU
+bef6618f-f892-56b9-89d8-58fce034895d,Awutu Senya West District,Central,DISTRICT,,Awutu-Breku,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,82,AWUTU SENYA WEST
+65fe0a64-8260-5a81-a5f6-c1a7a59218b4,Awutu Senya East Municipal,Central,MUNICIPAL,,Kasoa,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,83,AWUTU SENYA EAST
+d456298c-0ec6-5efd-a738-1bdd4d2bfab4,Agona West Municipal,Central,MUNICIPAL,,Swedru,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,84,AGONA WEST
+aa52d7ac-77cc-54ab-b8d9-7249e29f2e24,Agona East District,Central,DISTRICT,,Nsaba,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,85,AGONA EAST
+9e7d3faa-ffa6-51b3-ac78-5e6c4e11dacb,Asikuma Odoben Brakwa District,Central,DISTRICT,,Breman Asikuma,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,86,ASIKUMA ODOBEN BRAKWA
+01946de4-a82a-51bc-a920-e93aa4b6cc00,Abura-Asebu-Kwamankese District,Central,DISTRICT,,Abura Dunkwa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,87,ABURA-ASEBU-KWAMANKESE
+1b51ea2b-3b47-5be9-bfe1-a01f8e952cdf,Assin Central Municipal,Central,MUNICIPAL,,Assin Fosu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,88,ASSIN CENTRAL
+7b3e6293-a3a2-567c-9629-976a519a06ad,Assin North District,Central,DISTRICT,,Assin Bereku,true,,,https://mofep.gov.gh/sites/default/files/composite-budget/2026/CR/Assin_North.pdf,government-snapshot-2026-10-03-v1,89,ASSIN NORTH
+6ff864b8-62a3-5111-9c4e-9e59367b7b34,Assin South District,Central,DISTRICT,,Kyekyewere,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,90,ASSIN SOUTH
+537c4f60-b8f8-5725-bd3d-378eb65f361f,Twifo Ati Morkwa District,Central,DISTRICT,,Twifo Praso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,91,TWIFO ATI MORKWA
+324c8260-f2f7-5dd1-8571-6afa56cdf531,Twifo Hemang Lower Denkyira District,Central,DISTRICT,,Hemang,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,92,TWIFO HEMANG LOWER DENKYIRA
+00732777-33eb-595b-aacf-0026a6dc9117,Upper Denkyira East Municipal,Central,MUNICIPAL,,Dunkwa-on-Offin,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,93,UPPER DENKYIRA EAST
+db3ef9b3-38a6-5385-8af4-d7ff4d9ddc99,Upper Denkyira West District,Central,DISTRICT,,Diaso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,94,UPPER DENKYIRA WEST
+75a304f7-bafc-56ca-8c86-08cdff563456,Asuogyaman District,Eastern,DISTRICT,,Atimpoku,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,95,ASUOGYAMAN
+e0192c1b-abcb-50c8-9f40-ae78b5efa540,Lower Manya Krobo Municipal,Eastern,MUNICIPAL,,Odumase,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,96,LOWER MANYA KROBO
+9e1e7652-bc48-57ab-85f8-395dda06c5cc,Upper Manya Krobo District,Eastern,DISTRICT,,Asesewa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,97,UPPER MANYA KROBO
+d241b70b-1142-5fde-a390-d034d4715d3a,Yilo Krobo Municipal,Eastern,MUNICIPAL,,Somanya,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,98,YILO KROBO
+b3d79a9e-9c2a-5a65-b1d8-b679540eab17,New Juaben South Municipal,Eastern,MUNICIPAL,,Koforidua,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,99,NEW JUABEN SOUTH
+4d5b18c3-76ea-5ca3-be61-d0030767b7e9,New Juaben North Municipal,Eastern,MUNICIPAL,,Efiduase,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,100,NEW JUABEN NORTH
+bfc579d2-7927-5225-99c2-932e73fa88e4,Akwapim North Municipal,Eastern,MUNICIPAL,,Akropong,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,101,AKWAPIM NORTH
+42448fb6-be7b-5908-b044-f8f866d42ad8,Okere District,Eastern,DISTRICT,,Adukrom,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,102,OKERE
+1cb3c9d5-ab58-5473-87a0-8868434b8c6a,Akuapem South District,Eastern,DISTRICT,,Aburi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,103,AKUAPEM SOUTH
+b66b26db-6146-58dc-838c-75b98cef01c3,Nsawam/Adoagyiri Municipal,Eastern,MUNICIPAL,,Nsawam,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,104,NSAWAM/ADOAGYIRI
+ebfa51e1-84de-5c54-b5a5-7c7f338459c0,Suhum Municipal,Eastern,MUNICIPAL,,Suhum,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,105,SUHUM
+101a464c-fc15-595e-812a-8778579eb6bf,Ayensuano District,Eastern,DISTRICT,,Coaltar,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,106,AYENSUANO
+4870ce10-a564-5417-8118-13aa12882681,West Akim Municipal,Eastern,MUNICIPAL,,Asamankese,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,107,WEST AKIM
+fabb49ef-3973-59ec-8723-3776a5acabf1,Upper West Akim District,Eastern,DISTRICT,,Adeiso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,108,UPPER WEST AKIM
+4177693a-bbc0-54ca-b125-56523eb820b8,Birim Central Municipal,Eastern,MUNICIPAL,,Akim Oda,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,109,BIRIM CENTRAL
+f607b896-b587-5723-b4ea-13f167e10855,Asene Manso Akroso District,Eastern,DISTRICT,,Manso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,110,ASENE MANSO AKROSO
+0744b2ea-a928-5821-9ce3-b482f0dd7d40,Birim South District,Eastern,DISTRICT,,Akim Swedru,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,111,BIRIM SOUTH
+dc938b50-c02f-5ad3-9fc4-78872006bddf,Achiase District,Eastern,DISTRICT,,Achiase,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,112,ACHIASE
+f1b28e86-39bf-5174-bb18-4867bc4475da,Akyemansa District,Eastern,DISTRICT,,Ofoase,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,113,AKYEMANSA
+9063d83b-4764-5eed-93c3-39a29ce4d5ff,Kwaebibirem Municipal,Eastern,MUNICIPAL,,Kade,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,114,KWAEBIBIREM
+17180459-c523-5834-b57a-43b50102bbf8,Denkyembuo District,Eastern,DISTRICT,,Akwatia,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,115,DENKYEMBUO
+8ab12c36-ecdb-5f5b-9880-208b26c436c2,Birim North District,Eastern,DISTRICT,,New Abirim,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,116,BIRIM NORTH
+c21ab9a9-e71b-5307-a8fd-a229c5a2bcdd,Abuakwa South Municipal,Eastern,MUNICIPAL,,Kibi,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,117,ABUAKWA SOUTH
+0ad45f2d-d2cb-5f9d-9e13-7fb0ebc95e84,Abuakwa North Municipal,Eastern,MUNICIPAL,,Kukurantumi,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,118,ABUAKWA NORTH
+d760bf04-963d-54ec-9c0b-0e75f62c2158,Atiwa West District,Eastern,DISTRICT,,Kwabeng,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,119,ATIWA WEST
+9e669a20-50c1-5a71-b7be-0a405062eea8,Atiwa East District,Eastern,DISTRICT,,Anyiman,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,120,ATIWA EAST
+2d1ecb8d-b660-5010-997e-47dbe1885143,Fanteakwa North District,Eastern,DISTRICT,,Begoro,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,121,FANTEAKWA NORTH
+7534f871-153e-5dc5-8348-14d0bbf47861,Fanteakwa South District,Eastern,DISTRICT,,Osino,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,122,FANTEAKWA SOUTH
+430c58ab-f2b0-5c69-95c8-f0395436678e,Kwahu West Municipal,Eastern,MUNICIPAL,,Nkawkaw,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,123,KWAHU WEST
+e74bf3e7-274b-5054-8ad1-a8d71992cab6,Kwahu South District,Eastern,DISTRICT,,Mpraeso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,124,KWAHU SOUTH
+a9bece02-987d-5ca7-a495-0b9f5a846fbf,Kwahu East District,Eastern,DISTRICT,,Abetifi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,125,KWAHU EAST
+66082878-dd32-5426-8383-7589a7a26479,Afram Plains North District,Eastern,DISTRICT,,Donkokrom,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,126,AFRAM PLAINS NORTH
+51777e0d-ebf3-5fed-908b-6ba32c7474ae,Afram Plains South District,Eastern,DISTRICT,,Tease,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,127,AFRAM PLAINS SOUTH
+af954484-1deb-56dd-a271-cbb6b14ee1f3,Ga South Municipal,Greater Accra,MUNICIPAL,,Ngleshie Amanfrom,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,128,GA SOUTH
+5d0eeddc-2e00-51e3-b67a-357978f1acd7,Weija / Gbawe Municipal,Greater Accra,MUNICIPAL,,Weija,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,129,WEIJA / GBAWE
+fc370690-1969-546c-babc-c9dfd7f4b65d,Ga Central Municipal,Greater Accra,MUNICIPAL,,Sowutuom,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,130,GA CENTRAL
+5e14f981-1f87-5fd0-b12b-55db0e6fa016,Ga North Municipal,Greater Accra,MUNICIPAL,,Ofankor,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,131,GA NORTH
+e76631d2-5a0c-57f8-bd8c-639f54f278e1,Ga-West Municipal,Greater Accra,MUNICIPAL,,Amasaman,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,132,GA-WEST
+bf5e7a8e-de64-5681-81c9-9497732c2f48,Ga East Municipal,Greater Accra,MUNICIPAL,,Abokobi,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,133,GA EAST
+d3ab7a42-0353-5572-bf5e-3c6840f25c5a,La - Nkwantanang / Madina Municipal,Greater Accra,MUNICIPAL,,Madina,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,134,LA - NKWANTANANG / MADINA
+0afb527d-08ee-586d-b07a-d7d034a25501,Ayawaso East Municipal,Greater Accra,MUNICIPAL,,Nima,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,135,AYAWASO EAST
+55b8170f-938f-52bd-8bc3-6ae2c9757a39,Ayawaso North Municipal,Greater Accra,MUNICIPAL,,Accra Newtown,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,136,AYAWASO NORTH
+bd81c6a4-17ef-570b-8e82-06771e1aaa31,Ayawaso Central Municipal,Greater Accra,MUNICIPAL,,Kokomlemle,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,137,AYAWASO CENTRAL
+e219973f-cecf-599e-8c71-9b39b400b90d,Ayawaso West Municipal,Greater Accra,MUNICIPAL,,Dzorwulu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,138,AYAWASO WEST
+bb01c6a5-b2cf-5294-ac29-49a7a2f7d012,Accra Metropolitan,Greater Accra,METROPOLITAN,,Accra,true,,,https://imccod.gov.gh/metropolitans/,government-snapshot-2026-10-03-v1,139,ACCRA METROPOLITAN
+0eabc14e-9dba-5d6f-8733-5c32f513e7b1,Okaikwei North Municipal,Greater Accra,MUNICIPAL,,Abeka,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,140,OKAIKWEI NORTH
+e51061ca-02c9-50c1-9d62-60d547919f01,Ablekuma North Municipal,Greater Accra,MUNICIPAL,,Darkuman,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,141,ABLEKUMA NORTH
+a7bdcb8c-e78e-55e9-bbce-41f3f8be5302,Ablekuma Central Municipal,Greater Accra,MUNICIPAL,,Lartebiokoshie,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,142,ABLEKUMA CENTRAL
+42bec01b-9ae3-51e2-967a-ee3a64be4cc5,Ablekuma West Municipal,Greater Accra,MUNICIPAL,,Dansoman,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,143,ABLEKUMA WEST
+fb7376b2-3b72-5311-9c15-2b903bd393ab,Korle Klottey Municipal,Greater Accra,MUNICIPAL,,Osu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,144,KORLE KLOTTEY
+d3f9b16c-49e3-516a-8f88-18947d4ac40e,La Dade-Kotopon Municipal,Greater Accra,MUNICIPAL,,La,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,145,LA DADE-KOTOPON
+612891a1-6727-5fd4-bc03-916f8dab4ad7,Ledzokuku Municipal,Greater Accra,MUNICIPAL,,Teshie,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,146,LEDZOKUKU
+a493af76-9e1e-5cb0-a933-3cf361bb7326,Krowor Municipal,Greater Accra,MUNICIPAL,,Nungua,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,147,KROWOR
+ff68a0d2-5677-5cef-a978-173164d6543b,Tema Metropolitan,Greater Accra,METROPOLITAN,,Tema,true,,,https://imccod.gov.gh/metropolitans/,government-snapshot-2026-10-03-v1,148,TEMA METROPOLITAN
+2f549acf-a00c-5189-9afd-5f0cab00a223,Tema-West Municipal,Greater Accra,MUNICIPAL,,Tema Comm. 2,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,149,TEMA-WEST
+669d7943-a058-57be-b176-5b7d9aa7db73,Kpone Katamanso Municipal,Greater Accra,MUNICIPAL,,Kpone,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,150,KPONE KATAMANSO
+9d557fa1-41db-59f6-bdd9-a21c48121e30,Ashaiman Municipal,Greater Accra,MUNICIPAL,,Ashiaman,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,151,ASHAIMAN
+6bea6a92-a0c3-5fef-b1fe-392390220b9b,Adentan Municipal,Greater Accra,MUNICIPAL,,Adentan,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,152,ADENTAN
+4e073f9e-d849-5432-9790-936031f40e36,Shai-Osudoku District,Greater Accra,DISTRICT,,Dodowa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,153,SHAI-OSUDOKU
+d826e357-4e1c-5fca-8671-9f9aaef3cc76,Ningo-Prampram District,Greater Accra,DISTRICT,,Prampram,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,154,NINGO-PRAMPRAM
+0e0e6c92-fe0f-539f-b348-119be30c06c0,Ada West District,Greater Accra,DISTRICT,,Sege,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,155,ADA WEST
+2a35abbe-1660-55c3-99a7-7738358e546a,Ada East District,Greater Accra,DISTRICT,,Ada Foah,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,156,ADA EAST
+001967ca-e14c-5ed5-b1f4-1f5daa28fc30,West Mamprusi Municipal,North East,MUNICIPAL,,Walewale,true,,,https://mofep.gov.gh/publications/composite-budget-2025/ne,government-snapshot-2026-10-03-v1,157,WEST MAMPRUGU
+5c2048d1-26c4-527a-857a-50441c62feea,Mamprugu-Moagduri District,North East,DISTRICT,,Yagaba,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,158,MAMPRUGU-MOAGDURI
+e7d7ec0a-caa5-5c60-9ac0-ab83e9146d95,East Mamprusi Municipal,North East,MUNICIPAL,,Gambaga,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,159,EAST MAMPRUSI
+1adfc18c-1772-53b1-b65e-e035a3d5d7d9,Bunkpurugu-Nakpanduri District,North East,DISTRICT,,Bunkpurugu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,160,BUNKPURUGU-NAKPANDURI
+82dbac88-a9ac-53e6-91d1-8674273fc33c,Yunyoo-Nasuan District,North East,DISTRICT,,Yunyoo,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,161,YUNYOO-NASUAN
+342ccdae-2795-5819-9346-28e6faff3bee,Chereponi District,North East,DISTRICT,,Chereponi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,162,CHEREPONI
+cf79469f-bd8a-5dbb-b9ee-d84833a410ad,Kpandai District,Northern,DISTRICT,,Kpandai,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,163,KPANDAI
+cc63ff2a-3fcb-5b02-be78-dc7d7898fe91,Nanumba North Municipal,Northern,MUNICIPAL,,Bimbilla,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,164,NANUMBA NORTH
+d4d93aef-83f0-5e12-9b71-13ad93cab664,Nanumba South District,Northern,DISTRICT,,Wulensi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,165,NANUMBA SOUTH
+56d724b8-6b8c-5912-8f9e-d272d41cee0e,Zabzugu District,Northern,DISTRICT,,Zabzugu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,166,ZABZUGU
+e028e9e4-97f7-5964-8e89-96ec05944393,Tatale/ Sanguli District,Northern,DISTRICT,,Tatale,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,167,TATALE/ SANGULI
+83cbec21-756a-5ed0-82f7-f58007e2ed9e,Yendi Municipal,Northern,MUNICIPAL,,Yendi,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,168,YENDI
+88cccc73-1bfc-5257-82a4-b85365df6f04,Mion District,Northern,DISTRICT,,Sang,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,169,MION
+146a8c94-c46f-5594-aacb-1a4e75356421,Saboba District,Northern,DISTRICT,,Saboba,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,170,SABOBA
+d36a3195-ac49-5253-a681-5d9c6b8bd02e,Gushegu Municipal,Northern,MUNICIPAL,,Gushiegu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,171,GUSHEGU
+8d00560a-52ab-58b2-9696-53ff2902e7b9,Karaga District,Northern,DISTRICT,,Karaga,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,172,KARAGA
+fbe31dc1-a67d-5850-990b-5c4f30e4cda1,Savelugu Municipal,Northern,MUNICIPAL,,Savelugu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,173,SAVELUGU
+e58334db-f65a-5278-8a1d-1b118019aa58,Nanton District,Northern,DISTRICT,,Nanton,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,174,NANTON
+a871b47b-9b49-54d7-9854-fb1c4eee8898,Tamale Metropolitan,Northern,METROPOLITAN,,Tamale,true,,,https://imccod.gov.gh/metropolitans/,government-snapshot-2026-10-03-v1,175,TAMALE
+f02d6c77-dd45-5aaf-b1e8-07286f2a623c,Sagnarigu Municipal,Northern,MUNICIPAL,,Sagnarigu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,176,SAGNARIGU
+733b78d9-17d9-5fb6-b1c1-08943c2b2458,Tolon District,Northern,DISTRICT,,Tolon,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,177,TOLON
+385c96db-56fc-5ccd-ad26-71a8cad88d40,Kumbungu District,Northern,DISTRICT,,Kumbungu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,178,KUMBUNGU
+255e823d-05c2-5e14-adfb-0053b5e44bb3,Jasikan District,Oti,DISTRICT,,Jasikan,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,179,JASIKAN
+3952c988-809f-5024-9ffa-1affcf6ce0c1,Kadjebi District,Oti,DISTRICT,,Kedjebi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,180,KADJEBI
+c544eb38-5364-5e10-b4de-1550980561ae,Nkwanta South Municipal,Oti,MUNICIPAL,,Nkwanta,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,181,NKWANTA SOUTH
+b8628d58-9359-56fa-9271-0e57634f1ba5,Nkwanta North District,Oti,DISTRICT,,Kpasa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,182,NKWANTA NORTH
+7cf7cbd9-ffa3-550f-911b-f0d9e034182f,Biakoye District,Oti,DISTRICT,,Nkonya-Ahenkro,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,183,BIAKOYE
+b7795f72-7ee9-5f7e-a5d3-80e59494a515,Krachi East Municipal,Oti,MUNICIPAL,,Dambai,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,184,KRACHI EAST
+46627e76-978b-5204-a8d4-9227808ed609,Krachi West District,Oti,DISTRICT,,Kete Krachi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,185,KRACHI WEST
+880eac1f-6f2f-5543-8499-b6696cc46845,Krachi-Nchumuru District,Oti,DISTRICT,,Chinderi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,186,KRACHI-NCHUMURU
+7f9ebb40-666a-5330-aeb2-3ce653b3def3,Guan District,Oti,DISTRICT,,Lipke-Mate,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,187,GUAN
+163882ec-2813-5c0a-9b79-4c181fd31813,Bole District,Savannah,DISTRICT,,Bole,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,188,BOLE
+7d8da869-0fad-5a15-8f57-99af5eeaa376,Sawla-Tuna-Kalba District,Savannah,DISTRICT,,Sawla,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,189,SAWLA-TUNA-KALBA
+28445b51-0450-5dd4-b243-d00a3a5e67cb,West Gonja District,Savannah,DISTRICT,,Damongo,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,190,WEST GONJA
+95e55be8-282c-5229-a378-52d262980431,North Gonja District,Savannah,DISTRICT,,Daboya,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,191,NORTH GONJA
+8c7a8fd6-b33d-5931-9827-c8eca65e774e,Central Gonja District,Savannah,DISTRICT,,Buipe,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,192,CENTRAL GONJA
+a57967d3-7f11-5088-9ab7-f2245c31a3a5,East Gonja Municipal,Savannah,MUNICIPAL,,Salaga,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,193,EAST GONJA
+ff11f0c0-8108-5467-b9a9-dd4b0ddea2aa,North East Gonja District,Savannah,DISTRICT,,Kpalbe,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,194,NORTH EAST GONJA
+47f9810d-9755-562e-96d9-5a9c1363c52c,Builsa South District,Upper East,DISTRICT,,Fumbisi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,195,BUILSA SOUTH
+2f91b405-20a4-56f3-a029-f861a285f5fa,Builsa North District,Upper East,DISTRICT,,Sandema,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,196,BUILSA NORTH
+285eb7b8-6ae5-5896-a810-f7619c7eab9f,Kassena-Nankana Municipal,Upper East,MUNICIPAL,,Navrongo,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,197,KASSENA-NANKANA
+ff185dca-861f-5d3a-9b74-6cf51d790d5b,Kassena-Nankana West District,Upper East,DISTRICT,,Paga,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,198,KASSENA-NANKANA WEST
+15cb8813-c97e-5733-b59e-c8d2254bbe64,Bolgatanga Municipal,Upper East,MUNICIPAL,,Bolgatanga,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,199,BOLGATANGA
+a5056734-6ca1-5d61-9661-f201506d1e7f,Bolgatanga East District,Upper East,DISTRICT,,Zuarungu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,200,BOLGATANGA EAST
+dcad6a97-6626-5879-988f-cc3f352bcb9a,Bongo District,Upper East,DISTRICT,,Bongo,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,201,BONGO
+272ce7e5-7eb0-5915-8e53-6c7955ef67ec,Talensi District,Upper East,DISTRICT,,Tongo,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,202,TALENSI
+3358e542-0582-56cb-a989-e059b10e7049,Nabdam District,Upper East,DISTRICT,,Nangodi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,203,NABDAM
+81ac8deb-d697-5c4e-8cea-a6bdfd55bcd1,Bawku West District,Upper East,DISTRICT,,Zebila,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,204,BAWKU WEST
+0f008c3a-03d2-5527-bd0e-d4b854d2ae1f,Bawku Municipal,Upper East,MUNICIPAL,,Bawku,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,205,BAWKU
+d8e8793e-4779-5e58-8569-69bb85e4445e,Pusiga District,Upper East,DISTRICT,,Pusiga,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,206,PUSIGA
+80b1578f-accd-5c3e-9965-a1acb933e70e,Garu District,Upper East,DISTRICT,,Garu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,207,GARU
+d09a130d-b3b3-550e-a7e9-78ef644bbaf9,Tempane District,Upper East,DISTRICT,,Tempane,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,208,TEMPANE
+4316d845-7266-5d77-a3a1-0cfaa4697809,Binduri District,Upper East,DISTRICT,,Binduri,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,209,BINDURI
+c55afd73-75e5-58ac-858f-c3847f9ca3c1,Wa Municipal,Upper West,MUNICIPAL,,Wa,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,210,WA
+7296cb9e-2270-5ffc-a982-0d5a76438242,Wa West District,Upper West,DISTRICT,,Wachiaw,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,211,WA WEST
+ecd19ab8-073d-5b6d-8bac-69144c7ff5aa,Nadowli-Kaleo District,Upper West,DISTRICT,,Nadowli,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,212,NADOWLI-KALEO
+58ac7d05-f15a-5153-866e-f0de2f2e7999,Daffiama-Bussie-Issa District,Upper West,DISTRICT,,Issa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,213,DAFFIAMA-BUSSIE-ISSA
+57952220-52b9-561e-ac17-061878c0fde3,Jirapa Municipal,Upper West,MUNICIPAL,,Jirapa,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,214,JIRAPA
+1386d83b-11b9-57ab-83f2-d3a4bd2c9536,Lambussie District,Upper West,DISTRICT,,Lambussie,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,215,LAMBUSSIE
+7dc567de-a703-5cac-8203-08c80ee28c19,Lawra Municipal,Upper West,MUNICIPAL,,Lawra,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,216,LAWRA
+eae62c18-6fda-53ef-85cc-f845ba0cb3df,Nandom District,Upper West,DISTRICT,,Nandom,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,217,NANDOM
+beda5c86-842a-5f22-a572-d9dd1894e513,Wa East District,Upper West,DISTRICT,,Funsi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,218,WA EAST
+43b63245-e446-5087-8297-6cbdd4c5d98b,Sissala West District,Upper West,DISTRICT,,Gwollu,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,219,SISSALA WEST
+eb85433d-cb30-5d1f-ab8f-7c53dd91c1c8,Sissala East Municipal,Upper West,MUNICIPAL,,Tumu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,220,SISSALA EAST
+d13d4b56-8a61-5b50-8196-d2f6128e35d9,Keta Municipal,Volta,MUNICIPAL,,Keta,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,221,KETA
+b19636c2-5c48-574c-9077-c8f10b3b9275,Anloga District,Volta,DISTRICT,,Anglo,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,222,ANLOGA
+75e8de9d-aa82-5d2d-aecf-e8d8b8a1a591,Ketu South Municipal,Volta,MUNICIPAL,,Denu,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,223,KETU SOUTH
+abef057f-9a45-523b-8dd0-a60ba3d4d0d4,Ketu North Municipal,Volta,MUNICIPAL,,Dzodze,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,224,KETU NORTH
+748522ae-beb8-5efa-880b-2a27c8aa77da,Akatsi South District,Volta,DISTRICT,,Akatsi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,225,AKATSI SOUTH
+f3706ac2-cc6d-5499-b2ef-b217f950fd1e,Akatsi North District,Volta,DISTRICT,,Ave Dakpa,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,226,AKATSI NORTH
+20a7dbb0-4a6a-515b-8cd2-ba5ca5ffbabe,South Tongu District,Volta,DISTRICT,,Sogakope,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,227,SOUTH TONGU
+8dc1aa27-1055-57c3-8552-3a20f12c0e66,Central Tongu District,Volta,DISTRICT,,Adidome,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,228,CENTRAL TONGU
+4890e475-e762-5e45-a393-8e1236f6e4d0,North Tongu District,Volta,DISTRICT,,Battor,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,229,NORTH TONGU
+04b6894e-89f0-537a-a2c7-bcfb9ee866aa,Adaklu District,Volta,DISTRICT,,Adaklu Waya,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,230,ADAKLU
+38f22b9b-f1e1-58c2-9355-fa01fdd16fd9,Agotime - Ziope District,Volta,DISTRICT,,Agotime Kpetoe,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,231,AGOTIME - ZIOPE
+b12b36e1-51cf-5920-8908-2d0956949a1a,Ho Municipal,Volta,MUNICIPAL,,Ho,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,232,HO
+952fc006-8195-5561-bfa6-585e79638ae9,Ho West District,Volta,DISTRICT,,Dzolokpuita,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,233,HO WEST
+ceb0ef59-4c75-5d44-9124-d9a8b0624b77,South Dayi District,Volta,DISTRICT,,Kpeve,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,234,SOUTH DAYI
+8ed8185b-9153-5db0-b7fb-d7ee2ce832b1,Kpando Municipal,Volta,MUNICIPAL,,Kpando,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,235,KPANDO
+1120a5e9-d36b-5a29-9bbc-4ee91b2a61ad,North Dayi District,Volta,DISTRICT,,Anfoega,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,236,NORTH DAYI
+1414b1f2-a0b7-55ae-8860-6526411628d0,Hohoe Municipal,Volta,MUNICIPAL,,Hohoe,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,237,HOHOE
+0e57efdb-4b0d-5c16-a7d1-8619eabc3505,Afadjato South District,Volta,DISTRICT,,Ve-Golokwati,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,238,AFADJATO SOUTH DISTRICT
+83eccd55-f3ec-5cc4-8a0e-8fc35f609e57,Jomoro Municipal,Western,MUNICIPAL,,Half Assini,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,239,JOMORO
+5a23e67e-d6a4-5d15-9da2-174ac0fd493e,Ellembele District,Western,DISTRICT,,Nkroful,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,240,ELLEMBELE
+dad01eee-5c11-5b25-94b2-c1adad8646a9,Nzema East Municipal,Western,MUNICIPAL,,Axim,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,241,NZEMA EAST
+6b40347d-b0cc-5df9-83d6-dab9da14246f,Ahanta West Municipal,Western,MUNICIPAL,,Agona Nkwanta,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,242,AHANTA WEST
+e4d90df8-7a96-50a5-99b5-d6df3d274b66,Sekondi Takoradi Metropolitan,Western,METROPOLITAN,,Sekondi,true,,,https://imccod.gov.gh/metropolitans/,government-snapshot-2026-10-03-v1,243,SEKONDI TAKORADI
+7d4c0605-a3f1-51b6-8125-66e5f49ae7f6,Effia-Kwesimintsim Municipal,Western,MUNICIPAL,,Kwesimintin,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,244,EFFIA-KWESIMINTSIM
+9296a457-a7e1-58f2-ad55-1b7a1f7106e7,Shama District,Western,DISTRICT,,Shama,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,245,SHAMA
+ad2baeb4-3f12-5785-beb6-8ef9b8c52dac,Wassa East District,Western,DISTRICT,,Daboase,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,246,WASSA EAST
+f6b905cf-aaa1-59f5-a390-7279c42409a8,Mpohor District,Western,DISTRICT,,Mpohor,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,247,MPOHOR
+d3274e06-c08d-5d4a-b264-44cc707e2305,Tarkwa Nsuaem Municipal,Western,MUNICIPAL,,Tarkwa,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,248,TARKWA NSUAEM
+e37a2bd7-b8ae-53a6-9518-68a683560c87,Prestea Huni-Valley Municipal,Western,MUNICIPAL,,Bogoso,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,249,PRESTEA HUNI-VALLEY
+f0388097-2a9f-5641-aaa4-17a2b0678dff,Amenfi East Municipal,Western,MUNICIPAL,,Wassa Akropong,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,250,AMENFI EAST
+39e1b162-05aa-5e2a-a5ad-4eaecc4cc57d,Amenfi Central District,Western,DISTRICT,,Manso Amenfi,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,251,AMENFI CENTRAL
+2ab5d33f-380d-5641-92f1-2b53dbdcb943,Amenfi West Municipal,Western,MUNICIPAL,,Asankragua,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,252,AMENFI WEST
+e6fd443c-2d10-5a5d-b749-80fda7d64d23,Aowin Municipal,Western North,MUNICIPAL,,Enchi,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,253,AOWIN
+086e8b60-2208-5d64-9cf8-9936b76b9929,Suaman District,Western North,DISTRICT,,Dadieso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,254,SUAMAN
+e86f8ef7-417c-52bf-9914-57719fa07e1a,Bibiani-Anhwiaso-Bekwai Municipal,Western North,MUNICIPAL,,Bibiani,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,255,BIBIANI-ANHWIASO-BEKWAI
+4d61832b-ffff-58fe-8d92-118fb2bc23fc,Sefwi Wiawso Municipal,Western North,MUNICIPAL,,Sefwi Wiaso,true,,,https://imccod.gov.gh/municipalities/,government-snapshot-2026-10-03-v1,256,SEFWI WIAWSO
+a4bc340e-4409-5387-b21a-d151b0d2a754,Sefwi Akontombra District,Western North,DISTRICT,,Sefwi Akontombra,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,257,SEFWI AKONTOMBRA
+8a94cf8f-734a-58f9-bbcb-02c50f3bc3a5,Juaboso District,Western North,DISTRICT,,Juaboso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,258,JUABOSO
+ce8e9f5d-8db3-5ccf-9369-3d1ca2c3d377,Bodi District,Western North,DISTRICT,,Bodie,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,259,BODI
+ebd24321-bcea-5930-b277-039e548e1daa,Bia West District,Western North,DISTRICT,,Essam-Dabiso,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,260,BIA WEST
+30bafa2d-6fc5-5f80-8271-4799aa37c130,Bia East District,Western North,DISTRICT,,Adabokrom,true,,,https://imccod.gov.gh/districts/,government-snapshot-2026-10-03-v1,261,BIA EAST
