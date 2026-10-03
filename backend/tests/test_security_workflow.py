@@ -29,8 +29,6 @@ def client():
 def setup(c, name, email):
     r = c.get("/api/geography/regions").json()
     central = next(x for x in r if x["name"] == "Central")
-    districts = c.get("/api/geography/districts", params={"region_id": central["id"]}).json()
-    district = next(d for d in districts if d["name"] == "Agona East District")
     res = c.post(
         "/api/setup",
         headers={"X-Setup-Token": os.environ["SETUP_TOKEN"]},
@@ -38,7 +36,6 @@ def setup(c, name, email):
             "name": name,
             "organization_type": "District Health Directorate",
             "region_id": central["id"],
-            "district_id": district["id"],
             "health_district_name": name + " health district",
             "subdistricts": [{"name": "Test subdistrict"}],
             "facilities": [

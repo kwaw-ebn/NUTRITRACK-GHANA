@@ -61,7 +61,6 @@ class Setup(Strict):
     name: str = Field(min_length=3, max_length=180)
     organization_type: str = Field(min_length=2, max_length=80)
     region_id: str
-    district_id: str | None = None
     health_district_name: str = Field(min_length=2, max_length=160)
     subdistricts: list[SubdistrictIn] = Field(min_length=1, max_length=100)
     facilities: list[FacilityIn] = Field(default_factory=list, max_length=1000)

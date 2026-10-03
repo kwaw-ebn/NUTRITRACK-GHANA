@@ -1,6 +1,6 @@
 # Render + Neon deployment
 
-This release is a pilot foundation. Complete the production gates in REQUIREMENTS.md before using identifiable health data. No Render services or Neon databases are provisioned by this repository.
+This release is a pilot foundation. Complete the production gates in REQUIREMENTS.md before using identifiable health data. The repository includes a Render Blueprint and a single-instance pilot startup script. Resource provisioning is tracked separately in the hosting status below.
 
 ## Database
 
@@ -20,7 +20,7 @@ Create a Python web service from this repository, root directory `backend`.
 - Generate independent random secrets: `python -c 'import secrets; print(secrets.token_urlsafe(48))'`. Do not paste secrets into public issues or logs.
 - Set `ENVIRONMENT=staging` while validating, and `production` only after release gates pass. Production rejects default JWT secrets, missing setup token, SQLite and non-HTTPS CORS origins.
 - Supply `CORS_ORIGINS` as an exact comma-separated allowlist. No wildcard credential access.
-- On plans without pre-deploy commands, run migrations and seed once through an authorized Render shell before exposing the service. Never run schema creation at API import time.
+- On the free single-instance pilot, `bash start.sh` runs Alembic and the idempotent master-data seed before starting the API. Migrations never run at API import time. Move migrations to a separate pre-deploy job before scaling to multiple instances.
 - Configure a distributed API gateway rate limiter before scaling to multiple workers/instances. The built-in one-minute limiter is process-local and is not a multi-instance protection guarantee.
 
 ## Frontend on Render
@@ -39,7 +39,7 @@ Create a static site, root directory `frontend`.
 
 1. Visit the frontend, select **Set up your organization**.
 2. Use the operator-issued setup token. This token is entered once and not persisted in browser storage.
-3. Choose region and type the approved health district name; optionally link an Assembly MMDA; enter health sub-districts and facilities, administrator and programmes.
+3. Choose region and type the approved health district name; enter health sub-districts and facilities, administrator and programmes.
 4. After setup, add locally approved indicators (including definitions and approval references). Add communities and scoped staff accounts; import facilities through the validated CSV/XLSX workflow.
 5. Passwords and refresh tokens are never written to browser localStorage. Refresh tokens are rotated and stored only in memory; reload requires sign-in. Logout invalidates every server session for that account.
 6. Configure SMTP before relying on password-reset email. Reset responses do not reveal whether an account exists. Reset links expire in 30 minutes and invalidate existing sessions.
@@ -67,8 +67,14 @@ After deployment: verify `/health`, migrate/seed, confirm all 16 regions and 261
 
 ## Health hierarchy migration (0002)
 
-Run `python -m alembic upgrade head` before deploying the updated API. Health districts are a separate table from the 261 Assembly MMDAs. Existing organizations retain their Assembly link; their old label is copied into a provisional health district with source `Migrated assembly label; health directorate verification required`. An authorized operator must review those labels with the health directorate; migration does not establish a verified health-sector directory. New onboarding requires an entered health district and permits no Assembly link.
+Run `python -m alembic upgrade head` before deploying the updated API. Health districts are a separate table from the 261 Assembly MMDAs. Existing organizations retain their Assembly link; their old label is copied into a provisional health district with source `Migrated assembly label; health directorate verification required`. An authorized operator must review those labels with the health directorate; migration does not establish a verified health-sector directory. New onboarding requires an entered health district. Assembly fields have been removed from the setup UI and API. Historical Assembly references are retained only for migration compatibility.
 
 District administrators can assign an operational user to a health sub-district, facility, or community through Administration → Users. A facility and sub-district chosen together must match. District Nutrition Officer accounts cannot be narrowed to a subordinate scope; use Nutritionist/Dietitian, Data Officer or another appropriate operational role. Assigned scope is enforced by API queries, not browser filtering. National/regional provisioning uses a restricted shell and audit reference; ordinary registration cannot grant those privileges. Deactivate `access_grants.active` through a reviewed operator database change to revoke an area assignment until a management UI is available.
 
 Migration downgrade refuses health-only organizations because the previous schema requires an Assembly reference. Review a backup/restore plan before production migration. No administrative geography is deleted.
+
+## Repeatable pilot hosting
+
+`render.yaml` defines a free Python API and React static site. The database is supplied as a secret `DATABASE_URL`; use a dedicated Neon database, never another application’s credentials or schema. Backend `bash start.sh` completes migrations and master-data loading before accepting requests. Set the frontend’s actual HTTPS origin in `CORS_ORIGINS` and `FRONTEND_URL`, and set the actual API URL in frontend `VITE_API_URL`. Independent JWT/setup secrets are generated by the Blueprint.
+
+The pilot uses `ENVIRONMENT=staging` and contains no automatically created clients. A setup token is required for onboarding and can be found by the owner in the API’s Render Environment settings. Free hosting may sleep when idle; a production plan and release-gate review remain separate steps. SMTP password reset requires an email delivery configuration; it is not enabled by this pilot.

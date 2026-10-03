@@ -1564,10 +1564,9 @@ export default function App() {
                 <div>
                   <h3>National geography is versioned master data</h3>
                   <p>
-                    Regions and MMDAs are imported from government sources.
-                    Historical entries are retained. National directory updates
-                    require the authorized operator's import command; district
-                    users manage local health structures.
+                    The 16 regions are loaded from government master data.
+                    Health districts, sub-districts and facilities are managed
+                    by authorized health directorates.
                   </p>
                 </div>
               </div>

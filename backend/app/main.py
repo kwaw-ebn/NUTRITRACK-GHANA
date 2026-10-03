@@ -357,10 +357,6 @@ def setup(
     region = db.get(Region, data.region_id)
     if not region or not region.active:
         raise HTTPException(422, "Choose an active region")
-    if data.district_id:
-        district = db.get(District, data.district_id)
-        if not district or not district.active or district.region_id != data.region_id:
-            raise HTTPException(422, "Choose an MMDA belonging to the selected region")
     health_name = data.health_district_name.strip()
     if len(health_name) < 2:
         raise HTTPException(422, "Enter the health district name")
@@ -390,7 +386,7 @@ def setup(
         name=data.name,
         organization_type=data.organization_type,
         region_id=data.region_id,
-        district_id=data.district_id,
+        district_id=None,
         health_district_id=health_district.id,
         configuration={
             "programmes": data.programmes,

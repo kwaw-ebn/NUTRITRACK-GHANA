@@ -29,7 +29,6 @@ export default function Setup({
 }) {
   const [step, setStep] = useState(0),
     [regions, setRegions] = useState<Row[]>([]),
-    [districts, setDistricts] = useState<Row[]>([]),
     [programmes, setProgrammes] = useState<Row[]>([]),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
@@ -37,7 +36,6 @@ export default function Setup({
     name: "",
     organization_type: "District Health Directorate",
     region_id: "",
-    district_id: null,
     health_district_name: "",
     subdistricts: [{ name: "", code: "" }],
     facilities: [],
@@ -61,18 +59,14 @@ export default function Setup({
       })
       .catch((e) => setError(e.message));
   }, []);
-  useEffect(() => {
-    setDistricts([]);
-    if (data.region_id)
-      api<Row[]>(`/api/geography/districts?region_id=${data.region_id}`)
-        .then(setDistricts)
-        .catch((e) => setError(e.message));
-  }, [data.region_id]);
   const next = () => {
     setError("");
     if (step === 0 && data.name.length < 3)
       return setError("Enter the organization name.");
-    if (step === 1 && (!data.region_id || data.health_district_name.trim().length < 2))
+    if (
+      step === 1 &&
+      (!data.region_id || data.health_district_name.trim().length < 2)
+    )
       return setError("Choose a region and enter your health district.");
     if (
       step === 2 &&
@@ -186,23 +180,21 @@ export default function Setup({
                   options={regions}
                   value={data.region_id}
                   onChange={(v) =>
-                    setData({ ...data, region_id: v, district_id: null, health_district_name: "" })
+                    setData({ ...data, region_id: v, health_district_name: "" })
                   }
                   placeholder="Select Region"
                 />
               </Field>
-              <Field label="Health district" hint="Enter the health-service district name approved by your directorate.">
-                <input value={data.health_district_name} onChange={(e) => update("health_district_name", e.target.value)} placeholder="Type your health district" />
-              </Field>
               <Field
-                label="Assembly MMDA (optional reference)"
-                hint="This is separate from your health district. Only assemblies in your selected region appear."
+                label="Health district"
+                hint="Enter the health-service district name approved by your directorate."
               >
-                <Combobox
-                  options={districts}
-                  value={data.district_id || ""}
-                  onChange={(v) => update("district_id", v || null)}
-                  placeholder="Search and select MMDA"
+                <input
+                  value={data.health_district_name}
+                  onChange={(e) =>
+                    update("health_district_name", e.target.value)
+                  }
+                  placeholder="Type your health district"
                 />
               </Field>
             </div>
@@ -449,10 +441,7 @@ export default function Setup({
                     "Region",
                     regions.find((r) => r.id === data.region_id)?.name,
                   ],
-                  [
-                    "Health district",
-                    data.health_district_name,
-                  ],
+                  ["Health district", data.health_district_name],
                   [
                     "Health sub-districts",
                     data.subdistricts.map((s: Row) => s.name).join(", "),
